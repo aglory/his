@@ -1,0 +1,138 @@
+div.blocktabs {
+    display: flex;
+    margin: 10px auto 0 auto;
+    padding: 15px 0 0 0;
+    background-color: #fff;
+}
+
+div.blocktabs .nav {
+    width: 120px;
+    padding: 0;
+}
+
+div.blocktabs .nav ul {
+    width: 120px;
+}
+
+div.blocktabs .nav li {
+    color: #7f7f7f;
+    background-color: #dfdfdf;
+    background-repeat: no-repeat;
+    background-position: 30px center;
+    text-align: center;
+    width: 120px;
+    line-height: 53px;
+    border-bottom: 1px solid #fff;
+    font-size: 16px;
+    cursor: pointer;
+    text-indent: 30px;
+}
+
+div.blocktabs .nav li.active,
+div.blocktabs .nav li:hover {
+    background-color: #fff;
+}
+
+div.blocktabs .nav li.active {
+    cursor: default;
+}
+
+div.blocktabs .nav li.item1 {
+    background-image: url('1.png');
+}
+
+div.blocktabs .nav li.item2 {
+    background-image: url('2.png');
+}
+
+div.blocktabs .nav li.item3 {
+    background-image: url('3.png');
+}
+
+div.blocktabs .nav li.item4 {
+    background-image: url('4.png');
+}
+
+div.blocktabs .nav li.item5 {
+    background-image: url('5.png');
+}
+
+div.blocktabs .nav li.item6 {
+    background-image: url('6.png');
+}
+
+div.blocktabs .nav li.item7 {
+    background-image: url('7.png');
+}
+
+div.blocktabs .content {
+    width: 1080px
+}
+
+div.blocktabs .slide {
+    width: 580px;
+    height: 358px;
+    overflow: hidden;
+    margin: 10px;
+}
+
+div.blocktabs .contentitem {
+    display: none;
+}
+
+div.blocktabs .contentitem.active {
+    display: flex;
+}
+
+div.blocktabs .slides {
+    display: flex;
+}
+
+div.blocktabs .slides img {
+    width: 580px;
+    height: 358px;
+}
+
+div.blocktabs .list {
+    height: 378px;
+    margin: 0 10px 0 0;
+}
+
+div.blocktabs .list h3 {
+    color: #2f6a9b;
+    text-align: left;
+    font-size: 16px;
+    border-bottom: 1px solid #979797;
+    margin: 10px 0;
+}
+
+div.blocktabs .list h3 a {
+    color: #2f6a9b;
+}
+
+div.blocktabs .list li {
+    display: flex;
+}
+
+div.blocktabs .list li .title {
+    text-align: left;
+    width: 80%;
+    height: 35px;
+    line-height: 35px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap
+}
+
+div.blocktabs .list li .createdate {
+    display: inline-block;
+    text-align: right;
+    width: 20%;
+    height: 35px;
+    line-height: 35px;
+}
+
+div.banner {
+    margin: 10px auto;
+    ;
+}

@@ -1,0 +1,22 @@
+#ace-settings-container {
+    position: fixed;
+    top: 45px;
+}
+
+.page-content {
+    padding: 5px 0;
+    vertical-align: top;
+}
+
+.page-content>.row {
+    margin: 0px -12px -12px 0;
+}
+
+#manangertoolbar {
+    border-bottom: 1px solid #bdbdbd;
+    padding-bottom: 3px;
+}
+
+#manangerbody {
+    margin-top: 15px;
+}

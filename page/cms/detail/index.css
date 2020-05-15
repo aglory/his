@@ -1,0 +1,64 @@
+div.crumb {
+    text-align: left;
+    background: url('/view/cmslist/location.png') no-repeat 30px center #e9eff3;
+    height: 38px;
+    margin: 10px auto;
+}
+
+div.crumb ul {
+    display: flex;
+    margin-left: 60px;
+}
+
+div.crumb ul li {
+    margin: auto 5px;
+}
+
+div.crumb ul span,
+div.crumb ul a {
+    line-height: 38px;
+    color: #747575;
+    font-size: 16px;
+}
+
+div.content .contenttitle {
+    text-align: left;
+    padding: 25px 0 5px 20px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+div.content .contenttitle h3,
+div.content .contentbody h4 {
+    font-size: 16px;
+    margin: 0;
+    font-weight: normal;
+}
+
+div.content .contenttitle h3 {
+    color: #6d7278;
+}
+
+div.content .contentbody h4 {
+    color: #1966a7;
+}
+
+div.contentbody div.createdate {
+    color: #6d7278;
+    text-align: left;
+    text-indent: 1em;
+    font-size: 12px;
+}
+
+div.content div.block .item {
+    width: 100%;
+    background-color: inherit;
+    margin: 10px auto 10px auto;
+    padding-left: 10px;
+}
+
+div.content div.detail {
+    padding-right: 10px;
+    font-size: 14px;
+    line-height: 16px;
+    text-align: left;
+}
