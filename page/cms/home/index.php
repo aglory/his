@@ -60,7 +60,7 @@ include './config.php';
 						foreach ($news as  $new) {
 							$imgs = explode(',', $new['Images']);
 							foreach ($imgs as $img) {
-								echo '<div class="slider"><div class="images"><img src="/upload/', $new['Id'], '/', $img, '" /></div></div>';
+								echo '<div class="slider"><div class="images"><img src="/upload/content/', $new['Id'], '/', $img, '" /></div></div>';
 							}
 						}
 						?>

@@ -2,3 +2,6 @@
 /config.php
 /web.config
 upload
+/log.txt
+/.vscode
+/1.json
