@@ -1,9 +1,11 @@
-function btnLoginClick() {
+function btnLoginClick(sender) {
+    sender.disabled = true;
     var data = {
         name: $("#inputName").val(),
         password: $("#inputPassword").val(),
         verifyCode: $("#inputVerifyCode").val()
     };
+    loadMask();
     ajaxSubmit({
         url: 'admin.php?model=login&action=checklogin',
         data: data,
@@ -12,10 +14,16 @@ function btnLoginClick() {
             if (ret.Success) {
                 window.location.href = 'admin.php?model=home&action=index';
             } else {
-                alert(ret.Message);
+                removeMask();
+                sender.disabled = false;
+                showMessage('系统', ret.Message);
                 var img = document.getElementById('verifyCodeImage');
                 btnChangeVerifyCodeClick(img);
             }
+        },
+        error: function() {
+            removeMask();
+            sender.disabled = false;
         }
     });
 }

@@ -5,7 +5,6 @@ if (!defined('Execute') || !defined('IsAdmin')) {
 
 header('Content-type: application/json');
 
-
 $verifyCode = '';
 if (array_key_exists('verifyCode', $_POST)) {
 	$verifyCode = $_POST['verifyCode'];

@@ -42,6 +42,40 @@ if (!defined('Execute') || !defined('IsAdmin')) {
 		<script src="assets/js/respond.min.js"></script>
 		<![endif]-->
 
+
+
+	<!-- basic scripts -->
+
+	<!--[if !IE]> -->
+
+	<script src="/assets/js/jquery-2.0.3.min.js"></script>
+
+	<!-- <![endif]-->
+
+	<!--[if IE]>
+<script src="/assets/js/jquery-1.11.2.js"></script>
+<![endif]-->
+
+	<!--[if !IE]> -->
+
+	<script type="text/javascript">
+		window.jQuery || document.write("<script src='assets/js/jquery-2.0.3.min.js'>" + "<" + "/script>");
+	</script>
+
+	<!-- <![endif]-->
+
+	<!--[if IE]>
+<script type="text/javascript">
+window.jQuery || document.write("<script src='assets/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+
+	<script type="text/javascript">
+		if ("ontouchend" in document) document.write("<script src='assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
+	</script>
+
+	<!-- inline scripts related to this page -->
+
 	<link rel="stylesheet" href="assets/css/adminbase.css" />
 	<link rel="stylesheet" href="/<?php echo SOURCE_DIR ?>/login/login/index.css" />
 	<script src="assets/js/adminbase.js"></script>
@@ -80,14 +114,14 @@ if (!defined('Execute') || !defined('IsAdmin')) {
 											<fieldset>
 												<label class="block clearfix">
 													<span class="block input-icon input-icon-left">
-														<input id="inputName" value="<?php if ($_SERVER['REMOTE_HOST'] = "127.0.0.1") echo "admin"; ?>" type="text" class="form-control" placeholder="帐号" />
+														<input id="inputName" value="<?php if (isDebug()) echo "admin"; ?>" type="text" class="form-control" placeholder="帐号" />
 														<i class="icon-user"></i>
 													</span>
 												</label>
 
 												<label class="block clearfix">
 													<span class="block input-icon input-icon-left">
-														<input id="inputPassword" type="password" value="<?php if ($_SERVER['REMOTE_HOST'] = "127.0.0.1") echo "123456"; ?>" class="form-control" placeholder="密码" />
+														<input id="inputPassword" type="password" value="<?php if (isDebug()) echo "123456"; ?>" class="form-control" placeholder="密码" />
 														<i class="icon-lock"></i>
 													</span>
 												</label>
@@ -95,7 +129,7 @@ if (!defined('Execute') || !defined('IsAdmin')) {
 
 												<label class="block clearfix">
 													<img id="verifyCodeImage" class="verifyCodeImage" src="<?php ActionLink('verifycode', 'login') ?>" onclick="btnChangeVerifyCodeClick(this)" alt="刷新">
-													<input type="text" id="inputVerifyCode" value="<?php if ($_SERVER['REMOTE_HOST'] = "127.0.0.1") echo "1234"; ?>" maxlength="4" placeholder="">
+													<input type="text" id="inputVerifyCode" value="<?php if (isDebug()) echo "1234"; ?>" maxlength="4" placeholder="">
 													<button type="button" id="btnLogin" onclick="btnLoginClick(this);" class="width-35 pull-right btn btn-sm btn-primary">
 														<i class="icon-user"></i>
 														登录
@@ -244,45 +278,6 @@ if (!defined('Execute') || !defined('IsAdmin')) {
 			</div><!-- /.row -->
 		</div>
 	</div><!-- /.main-container -->
-
-	<!-- basic scripts -->
-
-	<!--[if !IE]> -->
-
-	<script src="/assets/js/jquery-2.0.3.min.js"></script>
-
-	<!-- <![endif]-->
-
-	<!--[if IE]>
-<script src="/assets/js/jquery-1.11.2.js"></script>
-<![endif]-->
-
-	<!--[if !IE]> -->
-
-	<script type="text/javascript">
-		window.jQuery || document.write("<script src='assets/js/jquery-2.0.3.min.js'>" + "<" + "/script>");
-	</script>
-
-	<!-- <![endif]-->
-
-	<!--[if IE]>
-<script type="text/javascript">
- window.jQuery || document.write("<script src='assets/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
-</script>
-<![endif]-->
-
-	<script type="text/javascript">
-		if ("ontouchend" in document) document.write("<script src='assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
-	</script>
-
-	<!-- inline scripts related to this page -->
-
-	<script type="text/javascript">
-		function show_box(id) {
-			jQuery('.widget-box.visible').removeClass('visible');
-			jQuery('#' + id).addClass('visible');
-		}
-	</script>
 </body>
 
 </html>

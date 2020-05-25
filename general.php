@@ -3,6 +3,13 @@ ob_start();
 
 if (!defined('DIRECTORY_SEPATRATOR')) define('DIRECTORY_SEPATRATOR', '/');
 
+//#region 枚举
+
+const EnumContentStatus = array(1 => '启用', 2 => '停用');
+const EnumContentTyp = array(1 => '新闻');
+
+//#endregion
+
 function ActionLink()
 {
 	$params = func_get_args();
@@ -96,6 +103,15 @@ function GetPostParam($key, $default)
 	}
 }
 
+function GetFileParam($key)
+{
+	if (array_key_exists($key, $_FILES)) {
+		return $_FILES[$key];
+	} else {
+		return null;
+	}
+}
+
 function GetSession($key, $default)
 {
 	if (array_key_exists($key, $_SESSION)) {
@@ -175,3 +191,53 @@ function isMobile()
 	}
 	return false;
 }
+
+function isDebug()
+{
+	return $_SERVER['REMOTE_HOST'] == "127.0.0.1";
+}
+
+//#region SqlBuilder
+
+/**
+ * @matchType number 匹配方式(1=> 精确匹配, 2 => 匹配开始, 3 => 匹配结束, 4 => 模糊匹配)
+ * @return array(0 => sql字符串, 1 => sql值)
+ */
+function BuildSafeSqlMatchType($matchType, $columnName, $columnValue)
+{
+	switch ($matchType) {
+		case 2:
+			return array("$columnName like :$columnName", $columnValue . '%');
+		case 3:
+			return array("$columnName like :$columnName", '%' . $columnValue);
+		case 4:
+			return array("$columnName like :$columnName", '%' . $columnValue . '%');
+		default:
+			return array("$columnName = :$columnName",  $columnValue);
+	}
+}
+
+
+function BuildSafeSqlOrderBy($pdo, $table, $pageOrderBy)
+{
+	$sth = $pdo->prepare("desc $table;");
+	$sth->execute();
+	$columns = $sth->fetchAll(PDO::FETCH_ASSOC);
+	$pageOrderBys = explode(",", $pageOrderBy);
+	$validColumns = array();
+	foreach ($columns as $column) {
+		foreach ($pageOrderBys as $item) {
+			if ($column['Field'] . ' desc' == $item) {
+				$validColumns[] = "`" . $column['Field'] . "`" . " desc";
+				break;
+			} else if ($column['Field'] . ' asc' == $item) {
+				$validColumns[] = "`" . $column['Field'] . "`" . " asc";
+				break;
+			}
+		}
+	}
+
+	return implode(",", $validColumns);
+}
+
+//#endregion

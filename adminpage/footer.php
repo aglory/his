@@ -2,7 +2,6 @@
 if (!defined('Execute') || !defined('IsAdmin')) {
     exit();
 }
-header("Content-Type: text/html;charset=utf-8");
 ?>
 
 <!-- PAGE CONTENT ENDS -->
@@ -24,11 +23,11 @@ header("Content-Type: text/html;charset=utf-8");
         <div>
             <div class="pull-left">
                 <select id="skin-colorpicker" class="hide">
-									<option data-skin="default" value="#438EB9">#438EB9</option>
-									<option data-skin="skin-1" value="#222A2D">#222A2D</option>
-									<option data-skin="skin-2" value="#C6487E">#C6487E</option>
-									<option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>
-								</select>
+                    <option data-skin="default" value="#438EB9">#438EB9</option>
+                    <option data-skin="skin-1" value="#222A2D">#222A2D</option>
+                    <option data-skin="skin-2" value="#C6487E">#C6487E</option>
+                    <option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>
+                </select>
             </div>
             <span>&nbsp; Choose Skin</span>
         </div>
@@ -56,9 +55,9 @@ header("Content-Type: text/html;charset=utf-8");
         <div>
             <input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-add-container" />
             <label class="lbl" for="ace-settings-add-container">
-								Inside
-								<b>.container</b>
-							</label>
+                Inside
+                <b>.container</b>
+            </label>
         </div>
     </div>
 </div>
@@ -72,50 +71,29 @@ header("Content-Type: text/html;charset=utf-8");
 </div>
 <!-- /.main-container -->
 
-<!-- basic scripts -->
-
-<!--[if !IE]> -->
-
-<script src="http://ajax.useso.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-<!-- <![endif]-->
-
-<!--[if IE]>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<![endif]-->
-
-<!--[if !IE]> -->
-
-<script type="text/javascript">
-    window.jQuery || document.write("<script src='assets/js/jquery-2.0.3.min.js'>" + "<" + "/script>");
-</script>
-<!-- <![endif]-->
-
-<!--[if IE]>
-<script type="text/javascript">
- window.jQuery || document.write("<script src='assets/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
-</script>
-<![endif]-->
-
-<script type="text/javascript">
-    if ("ontouchend" in document) document.write("<script src='assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
-</script>
-<script src="assets/js/bootstrap.min.js"></script>
-<script src="assets/js/typeahead-bs2.min.js"></script>
-
-<!-- page specific plugin scripts -->
-
-<!-- ace scripts -->
-
-<script src="assets/js/ace-elements.min.js"></script>
-<script src="assets/js/ace.min.js"></script>
-
 <!-- inline scripts related to this page -->
 <!-- 
 		<div style="display:none">
         <script src='http://v7.cnzz.com/stat.php?id=155540&web_id=155540' language='JavaScript' charset='gb2312'></script>
 	</div>
  -->
+
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">在这里添加一些文本</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div class="modal fade" id="htmlModal"></div>
 </body>
 
 </html>

@@ -5,13 +5,13 @@ if (!defined('Execute') || !defined('IsAdmin')) {
 ?>
 <ul class="nav nav-list">
     <li class="active">
-        <a href="<?php ActionLink('index','home')?>">
+        <a href="<?php ActionLink('index', 'home') ?>">
             <span class="menu-text"> 首页 </span>
         </a>
     </li>
 
     <li>
-        <a href="<?php ActionLink('manager','news')?>">
+        <a href="<?php ActionLink('manager', 'content', array('Type' => 1)) ?>">
             <span class="menu-text"> 新闻 </span>
         </a>
     </li>

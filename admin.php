@@ -3,6 +3,23 @@
 ob_start();
 session_start();
 
+//#region admin公共函数
+
+/**
+ * 根据文件名得到对应后缀(包含点号)
+ */
+function GetFileExtense($filename)
+{
+	$matches = array();
+	if (preg_match('/(\.\w+)$/i', $filename, $matches)) {
+		return $matches[1];
+	} else {
+		return $filename;
+	}
+}
+
+//#endregion
+
 include_once './general.php';
 
 $model = GetGetParam('model', 'index');
@@ -32,8 +49,20 @@ if (!file_exists($fileLocation)) {
 	$fileLocation = GetFileLocation(array($action, $model, $parital));
 }
 
+if (isDebug()) {
+	file_put_contents("./log.txt", "\r\n" . json_encode(
+		array(
+			'POST' => $_POST,
+			'GET' => $_GET,
+			'File' => $_FILES,
+			'model' => $model,
+			'action' => $action,
+			'parital' => $parital
+		)
+	), FILE_APPEND);
+}
 
 define('Model', $model);
 define('Action', $action);
 
-Render($action, $model);
+Render($action, $model, $parital);

@@ -39,7 +39,8 @@ create table `Content` (
   `Images` nvarchar(200) not null comment '图片',
   `Index` int not null comment '顺序',
   `Content` text comment '内容',
-  `Status` int not null comment '状态(1:正常,2:删除)',
+  `Status` int not null comment '状态(1:启用,2:停用)',
+  `ViewCount` int not null default 0, 
   `CreateDate` DateTime NULL,
   primary key (`Id`))
 ENGINE = InnoDB
