@@ -2,10 +2,6 @@ body.login-layout {
     background: url('/assets/image/loginbackground.jpg') center center no-repeat rgba(0, 0, 0, 0.6);
 }
 
-#divlogin {
-    top: 200px;
-}
-
 .verifyCodeImage {
     width: 70px;
     height: 34px;

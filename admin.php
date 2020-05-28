@@ -18,6 +18,21 @@ function GetFileExtense($filename)
 	}
 }
 
+function GetCurl($url, $method, $data)
+{
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+    if ($method == 'GET') {
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    }
+    $headerArray = array('user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36;');
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headerArray);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+}
+
 //#endregion
 
 include_once './general.php';

@@ -5,6 +5,25 @@ if (!defined('Execute')) {
 header("Content-Type: text/html;charset=utf-8");
 include './config.php';
 LoadClass('Pagination');
+
+$pageIndex = 1;
+$pageSize = 20;
+$type = 0;
+if (array_key_exists('pageIndex', $_GET)) {
+	$pageIndex = intval($_GET['pageIndex']);
+}
+if (array_key_exists('pageSize', $_GET)) {
+	$pageSize = intval($_GET['pageSize']);
+}
+if (empty($pageSize))
+	$pageSize = 20;
+if (array_key_exists('type', $_GET)) {
+	$type = intval($_GET['type']);
+}
+$pageStart = ($pageIndex - 1) * $pageSize;
+$pageEnd = $pageStart  + $pageSize;
+
+
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -40,55 +59,22 @@ LoadClass('Pagination');
 			<div class="item">
 				<ul>
 					<?php
-					$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
-					$sth->execute();
-					$news = $sth->fetchAll(PDO::FETCH_ASSOC);
-					foreach ($news as  $new) {
-						echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
-					}
-					?>
-				</ul>
-			</div>
-		</div>
-		<div class="contentbody block">
-			<div class="item">
-				<ul>
-					<?php
-					$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
-					$sth->execute();
-					$news = $sth->fetchAll(PDO::FETCH_ASSOC);
-					foreach ($news as  $new) {
-						echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
-					}
-					?>
-				</ul>
-			</div>
-		</div>
-		<div class="contentbody block">
-			<div class="item">
-				<ul>
-					<?php
-					$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
-					$sth->execute();
-					$news = $sth->fetchAll(PDO::FETCH_ASSOC);
-					foreach ($news as  $new) {
-						echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
+					$whereClause = "Type = $type and Status = 1";
+					$sthContentList =  $pdo->prepare("select Id, Title, CreateDate from `Content` where $whereClause order by `Index` asc, CreateDate desc limit $pageStart, $pageSize;");
+					$sthContentList->execute();
+					$contents = $sthContentList->fetchAll(PDO::FETCH_ASSOC);
+					foreach ($contents as  $content) {
+						echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $content['Id']), false), '">', $content['Title'], '</a></div><div class="createdate">', date_format(date_create($content['CreateDate']), "Y-m-d"), '</div></li>';
 					}
 					?>
 				</ul>
 			</div>
 		</div>
 		<?php
-		$pageIndex = 1;
-		$pageSize = 20;
-		if (array_key_exists('pageIndex', $_GET)) {
-			$pageIndex = $_GET['pageIndex'];
-		}
-		if (array_key_exists('pageSize', $_GET)) {
-			$pageSize = $_GET['pageSize'];
-		}
-
-		$page = new Pagination(2000, $pageIndex, $pageSize);
+		$sthContentStatic = $pdo->prepare("select count(1) recordCount from `Content` where $whereClause;");
+		$sthContentStatic->execute();
+		$contentStatic = $sthContentStatic->fetch(PDO::FETCH_ASSOC);
+		$page = new Pagination($contentStatic['recordCount'], $pageIndex, $pageSize);
 		$page->setQueryParams(
 			array(
 				'model' => Model,

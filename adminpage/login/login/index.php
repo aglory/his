@@ -125,153 +125,21 @@ window.jQuery || document.write("<script src='assets/js/jquery-1.10.2.min.js'>"+
 														<i class="icon-lock"></i>
 													</span>
 												</label>
-												<div class="space"></div>
 
 												<label class="block clearfix">
 													<img id="verifyCodeImage" class="verifyCodeImage" src="<?php ActionLink('verifycode', 'login') ?>" onclick="btnChangeVerifyCodeClick(this)" alt="刷新">
-													<input type="text" id="inputVerifyCode" value="<?php if (isDebug()) echo "1234"; ?>" maxlength="4" placeholder="">
+													<input type="text" id="inputVerifyCode" value="<?php if (isDebug()) echo "1234"; ?>" maxlength="4" placeholder="" style="width:80px" />
 													<button type="button" id="btnLogin" onclick="btnLoginClick(this);" class="width-35 pull-right btn btn-sm btn-primary">
 														<i class="icon-user"></i>
 														登录
 													</button>
 												</label>
-
 												<div class="space-4"></div>
 											</fieldset>
 										</form>
 									</div><!-- /widget-main -->
-
-									<div class="toolbar clearfix">
-										<div>
-											<a href="#" class="forgot-password-link">
-												<i class="icon-arrow-left"></i>
-											</a>
-										</div>
-
-										<div>
-											<a href="#" class="user-signup-link">
-												<i class="icon-arrow-right"></i>
-											</a>
-										</div>
-									</div>
 								</div><!-- /widget-body -->
 							</div><!-- /login-box -->
-
-							<div id="forgot-box" class="forgot-box widget-box no-border">
-								<div class="widget-body">
-									<div class="widget-main">
-										<h4 class="header red lighter bigger">
-											<i class="icon-key"></i>
-											Retrieve Password
-										</h4>
-
-										<div class="space-6"></div>
-										<p>
-											Enter your email and to receive instructions
-										</p>
-
-										<form>
-											<fieldset>
-												<label class="block clearfix">
-													<span class="block input-icon input-icon-right">
-														<input type="email" class="form-control" placeholder="Email" />
-														<i class="icon-envelope"></i>
-													</span>
-												</label>
-
-												<div class="clearfix">
-													<button type="button" class="width-35 pull-right btn btn-sm btn-danger">
-														<i class="icon-lightbulb"></i>
-														Send Me!
-													</button>
-												</div>
-											</fieldset>
-										</form>
-									</div><!-- /widget-main -->
-
-									<div class="toolbar center">
-										<a href="#" onclick="show_box('login-box'); return false;" class="back-to-login-link">
-											Back to login
-											<i class="icon-arrow-right"></i>
-										</a>
-									</div>
-								</div><!-- /widget-body -->
-							</div><!-- /forgot-box -->
-
-							<div id="signup-box" class="signup-box widget-box no-border">
-								<div class="widget-body">
-									<div class="widget-main">
-										<h4 class="header green lighter bigger">
-											<i class="icon-group blue"></i>
-											New User Registration
-										</h4>
-
-										<div class="space-6"></div>
-										<p> Enter your details to begin: </p>
-
-										<form>
-											<fieldset>
-												<label class="block clearfix">
-													<span class="block input-icon input-icon-right">
-														<input type="email" class="form-control" placeholder="Email" />
-														<i class="icon-envelope"></i>
-													</span>
-												</label>
-
-												<label class="block clearfix">
-													<span class="block input-icon input-icon-right">
-														<input type="text" class="form-control" placeholder="Username" />
-														<i class="icon-user"></i>
-													</span>
-												</label>
-
-												<label class="block clearfix">
-													<span class="block input-icon input-icon-right">
-														<input type="password" class="form-control" placeholder="Password" />
-														<i class="icon-lock"></i>
-													</span>
-												</label>
-
-												<label class="block clearfix">
-													<span class="block input-icon input-icon-right">
-														<input type="password" class="form-control" placeholder="Repeat password" />
-														<i class="icon-retweet"></i>
-													</span>
-												</label>
-
-												<label class="block">
-													<input type="checkbox" class="ace" />
-													<span class="lbl">
-														I accept the
-														<a href="#">User Agreement</a>
-													</span>
-												</label>
-
-												<div class="space-24"></div>
-
-												<div class="clearfix">
-													<button type="reset" class="width-30 pull-left btn btn-sm">
-														<i class="icon-refresh"></i>
-														Reset
-													</button>
-
-													<button type="button" class="width-65 pull-right btn btn-sm btn-success">
-														Register
-														<i class="icon-arrow-right icon-on-right"></i>
-													</button>
-												</div>
-											</fieldset>
-										</form>
-									</div>
-
-									<div class="toolbar center">
-										<a href="#" onclick="show_box('login-box'); return false;" class="back-to-login-link">
-											<i class="icon-arrow-left"></i>
-											Back to login
-										</a>
-									</div>
-								</div><!-- /widget-body -->
-							</div><!-- /signup-box -->
 						</div><!-- /position-relative -->
 					</div>
 				</div><!-- /.col -->

@@ -6,7 +6,7 @@ if (!defined('DIRECTORY_SEPATRATOR')) define('DIRECTORY_SEPATRATOR', '/');
 //#region 枚举
 
 const EnumContentStatus = array(1 => '启用', 2 => '停用');
-const EnumContentTyp = array(1 => '新闻');
+const EnumContentTyp = array(1 => "综合新闻", 2 => "联盟新闻", 3 => "产业研究", 4 => "通知通告", 5 => "人才培养", 6 => "院内动态", 7 => "申报公告", 8 => "联盟公告");
 
 //#endregion
 

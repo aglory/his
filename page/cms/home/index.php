@@ -54,7 +54,7 @@ include './config.php';
 				<div class="slide">
 					<div class="slides">
 						<?php
-						$sth =  $pdo->prepare('select Id, Images from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 1;');
+						$sth =  $pdo->prepare("select Id, Images from `Content` where Type = 1 and Status = 1 and Images <> '' order by `Index` asc, CreateDate desc limit 0, 9;");
 						$sth->execute();
 						$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 						foreach ($news as  $new) {
@@ -70,7 +70,7 @@ include './config.php';
 					<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 1)) ?>">重要动态</a></h3>
 					<ul>
 						<?php
-						$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
+						$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 9;');
 						$sth->execute();
 						$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 						foreach ($news as  $new) {
@@ -93,7 +93,7 @@ include './config.php';
 			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 1)) ?>">相关政策</a></h3>
 			<ul>
 				<?php
-				$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
+				$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
 				$sth->execute();
 				$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 				foreach ($news as  $new) {
@@ -106,7 +106,7 @@ include './config.php';
 			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 1)) ?>">人才扶持</a></h3>
 			<ul>
 				<?php
-				$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
+				$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
 				$sth->execute();
 				$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 				foreach ($news as  $new) {
