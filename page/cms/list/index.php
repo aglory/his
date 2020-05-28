@@ -46,25 +46,41 @@ $pageEnd = $pageStart  + $pageSize;
 	<div class="warpper crumb">
 		<ul>
 			<li><?php echo '<a href="', ActionLink('index', 'index', null, false), '">首页</a>' ?></li>
-			<li><span>&gt;</span></li>
-			<li><span>二级页面</span></li>
+			<?php
+			if (array_key_exists($type, EnumContentTyp)) {
+			?>
+				<li><span>&gt;</span></li>
+				<li><span><?php echo EnumContentTyp[$type] ?></span></li>
+			<?php
+			}
+			?>
 		</ul>
 	</div>
 
 	<div class="warpper content boxshadow">
-		<div class="contenttitle">
-			<h3>院内动态</h3>
-		</div>
+		<?php
+		if (array_key_exists($type, EnumContentTyp)) {
+		?>
+			<div class="contenttitle">
+				<h3><?php echo EnumContentTyp[$type] ?></h3>
+			</div>
+		<?php
+		}
+		?>
 		<div class="contentbody block">
 			<div class="item">
 				<ul>
 					<?php
-					$whereClause = "Type = $type and Status = 1";
-					$sthContentList =  $pdo->prepare("select Id, Title, CreateDate from `Content` where $whereClause order by `Index` asc, CreateDate desc limit $pageStart, $pageSize;");
+					$whereClause = 'Status = 1';
+					if (array_key_exists($type, EnumContentTyp)) {
+						$whereClause .= " and Type = $type";
+					}
+
+					$sthContentList =  $pdo->prepare("select Id, Type, Title, CreateDate from `Content` where $whereClause order by `Index` asc, CreateDate desc limit $pageStart, $pageSize;");
 					$sthContentList->execute();
 					$contents = $sthContentList->fetchAll(PDO::FETCH_ASSOC);
 					foreach ($contents as  $content) {
-						echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $content['Id']), false), '">', $content['Title'], '</a></div><div class="createdate">', date_format(date_create($content['CreateDate']), "Y-m-d"), '</div></li>';
+						echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $content['Id'], 'type' => $content['Type']), false), '">', $content['Title'], '</a></div><div class="createdate">', date_format(date_create($content['CreateDate']), "Y-m-d"), '</div></li>';
 					}
 					?>
 				</ul>

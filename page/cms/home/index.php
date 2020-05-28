@@ -27,11 +27,11 @@ include './config.php';
 		<marquee>
 			<ul>
 				<?php
-				$sth =  $pdo->prepare('select Id, Title from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
+				$sth =  $pdo->prepare('select Id, Type, Title from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc;');
 				$sth->execute();
 				$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 				foreach ($news as  $new) {
-					echo '<li>', $new['Title'], '</li>';
+					echo '<li><a href="', ActionLink('detail', 'cms', array('id' => $new['Id'], 'type' => $new['Type']), false), '">', $new['Title'], '</a></li>';
 				}
 				?>
 			</ul>
@@ -54,27 +54,27 @@ include './config.php';
 				<div class="slide">
 					<div class="slides">
 						<?php
-						$sth =  $pdo->prepare("select Id, Images from `Content` where Type = 1 and Status = 1 and Images <> '' order by `Index` asc, CreateDate desc limit 0, 9;");
+						$sth =  $pdo->prepare("select Id, Type, Images from `Content` where Type = 1 and Status = 1 and Images <> '' order by `Index` asc, CreateDate desc limit 0, 9;");
 						$sth->execute();
 						$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 						foreach ($news as  $new) {
 							$imgs = explode(',', $new['Images']);
 							foreach ($imgs as $img) {
-								echo '<div class="slider"><div class="images"><img src="/upload/content/', $new['Id'], '/', $img, '" /></div></div>';
+								echo '<div class="slider"><div class="images"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id'], 'type' => $new['Type']), false), '"><img src="/upload/content/', $new['Id'], '/', $img, '" /></a></div></div>';
 							}
 						}
 						?>
 					</div>
 				</div>
 				<div class="list">
-					<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 1)) ?>">重要动态</a></h3>
+					<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 1)) ?>"><?php echo EnumContentTyp[1] ?></a></h3>
 					<ul>
 						<?php
-						$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 9;');
+						$sth =  $pdo->prepare('select Id, Type, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 9;');
 						$sth->execute();
 						$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 						foreach ($news as  $new) {
-							echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
+							echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id'], 'type' => $new['Type']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
 						}
 						?>
 					</ul>
@@ -90,27 +90,27 @@ include './config.php';
 	</div>
 	<div class="warpper block">
 		<div class="item boxshadow left">
-			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 1)) ?>">相关政策</a></h3>
+			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 4)) ?>"><?php echo EnumContentTyp[4] ?></a></h3>
 			<ul>
 				<?php
-				$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
+				$sth =  $pdo->prepare('select Id, Type, Title, CreateDate from `Content` where Type = 4 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
 				$sth->execute();
 				$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 				foreach ($news as  $new) {
-					echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
+					echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id'], 'type' => $new['Type']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
 				}
 				?>
 			</ul>
 		</div>
 		<div class="item boxshadow right">
-			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 1)) ?>">人才扶持</a></h3>
+			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 5)) ?>"><?php echo EnumContentTyp[5] ?></a></h3>
 			<ul>
 				<?php
-				$sth =  $pdo->prepare('select Id, Title, CreateDate from `Content` where Type = 1 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
+				$sth =  $pdo->prepare('select Id, Type, Title, CreateDate from `Content` where Type = 5 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
 				$sth->execute();
 				$news = $sth->fetchAll(PDO::FETCH_ASSOC);
 				foreach ($news as  $new) {
-					echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
+					echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id'], 'type' => $new['Type']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
 				}
 				?>
 			</ul>

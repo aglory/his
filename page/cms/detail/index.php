@@ -5,6 +5,16 @@ if (!defined('Execute')) {
 header("Content-Type: text/html;charset=utf-8");
 include './config.php';
 LoadClass('Pagination');
+
+$id = 0;
+if (array_key_exists('id', $_GET))
+	$id = intval($_GET['id']);
+
+$sth =  $pdo->prepare('select * from `Content` where id = :id');
+$sth->execute(array('id' => $id));
+$model = $sth->fetch(PDO::FETCH_ASSOC);
+if (!$model)
+	exit();
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -27,27 +37,16 @@ LoadClass('Pagination');
 		<ul>
 			<li><?php echo '<a href="', ActionLink('index', 'index', null, false), '">首页</a>' ?></li>
 			<li><span>&gt;</span></li>
-			<li><?php echo '<a href="',  ActionLink('list', 'cms',  array("type" => 1)), '">二级页面</a>' ?></li>
+			<li><?php echo '<a href="',  ActionLink('list', 'cms',  array("type" => $model['Type'])), '">', EnumContentTyp[$model['Type']], '</a>' ?></li>
 			<li><span>&gt;</span></li>
-			<li><span>详情页面</span></li>
+			<li><span><?php echo $model['Title']?></span></li>
 		</ul>
 	</div>
 
 	<div class="warpper content boxshadow">
 		<div class="contenttitle">
-			<h3>院内动态</h3>
+			<h3><?php echo EnumContentTyp[$model['Type']] ?></h3>
 		</div>
-		<?php
-		$id = 0;
-		if (array_key_exists('id', $_GET))
-			$id = intval($_GET['id']);
-
-		$sth =  $pdo->prepare('select * from `Content` where id = :id');
-		$sth->execute(array('id' => $id));
-		$model = $sth->fetch(PDO::FETCH_ASSOC);
-		if (!$model)
-			exit();
-		?>
 		<div class="contentbody block">
 			<div class="item">
 				<h4><?php echo $model['Title'] ?></h4>
@@ -56,7 +55,7 @@ LoadClass('Pagination');
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="contentbody block">
 			<div class="item">
 				<div class="detail">

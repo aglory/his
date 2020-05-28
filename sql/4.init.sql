@@ -30,3 +30,17 @@ update `Content` set Content = '“坚持中西医并重，传承发展中医药
 　　在扬子江药业集团董事长徐镜人代表看来，中西医各有特色，中医能治疗不少西医治不好的病。坚持中西医并重，取长补短，优势互补，才能发挥治病的最大效果。
 
 　　徐镜人代表建议，鼓励设立中西医特色医院，强化中西医的协同作用，真正做到中西医并重，不断满足人民群众对健康生活的需求。' where Id <> 0;
+
+
+
+
+
+update content set Images = 'aa257487ee9d735f186b9e0d23f92be.jpg' where Id = 83; 
+update content set Images = 'zb3t.jpg' where Id = 85; 
+update content set Images = 'ojsd.jpg' where Id = 88; 
+update content set Images = '12121.jpg' where Id = 104; 
+update content set Images = '0.jpg' where Id in(135, 145, 147); 
+update content set Images = 'kvr7.jpg' where Id in(120, 122); 
+update content set Imagescontent = 'u5u3.jpg' where Id = 131; 
+update content set Images = 'xeww.jpg' where Id = 124; 
+update content set Images = '333-2.jpg' where Id = 171; 
