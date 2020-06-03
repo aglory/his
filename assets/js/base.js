@@ -1,3 +1,4 @@
+///下部按钮点击
 function btntabheaderclick(sender, id) {
     if (sender.className.indexOf('active') >= 0)
         return;
@@ -9,4 +10,9 @@ function btntabheaderclick(sender, id) {
 
     sender.className = sender.className + " active";
 
+}
+
+///查询按钮
+function btnsearchclick(sender) {
+    window.location.href = "?action=list&model=cms&keyWord=" + window.encodeURIComponent(document.getElementById('txtKeyWord').value);
 }

@@ -12,11 +12,10 @@
 }
 
 .modal-lg {
-    width: 800px;
+    width: 1000px;
 }
 
 .page-content {
-    padding: 5px 0;
     vertical-align: top;
 }
 
@@ -31,6 +30,7 @@
 
 #manangerbody {
     margin-top: 15px;
+    padding: 0;
 }
 
 #manangerbody th {

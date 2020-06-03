@@ -1,9 +1,10 @@
 <?php
-
 ob_start();
 session_start();
 
 //#region admin公共函数
+
+const EnumMatchType = array(1 => '精确匹配', 2 => '匹配开始', 3 => '匹配结束', 4 => '模糊匹配');
 
 /**
  * 根据文件名得到对应后缀(包含点号)
@@ -18,19 +19,30 @@ function GetFileExtense($filename)
 	}
 }
 
+/**
+ * curl远程请求
+ */
 function GetCurl($url, $method, $data)
 {
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-    if ($method == 'GET') {
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-    }
-    $headerArray = array('user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36;');
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headerArray);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	$curl = curl_init();
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+	if ($method == 'GET') {
+		curl_setopt($curl, CURLOPT_POST, 1);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+	}
+	$headerArray = array('user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36;');
+	curl_setopt($curl, CURLOPT_HTTPHEADER, $headerArray);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+}
+
+/**
+ * 权限验证
+ */
+function ValidatePermission($permission)
+{
+	return in_array($permission,	explode(',', $_SESSION['UserNamePermissions']));
 }
 
 //#endregion

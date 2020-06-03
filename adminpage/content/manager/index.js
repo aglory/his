@@ -93,6 +93,8 @@ function btnChangeStatusClick(sender, id, status) {
 
 //#region 编辑
 
+var kEditor;
+
 function btnEditorClick(sender, id) {
     if ($(sender).hasClass('disabled'))
         return;
@@ -110,6 +112,10 @@ function btnEditorClick(sender, id) {
         dataType: "text",
         success: function(ret) {
             showModal(ret);
+            KindEditor.create('#formContent', {
+                langType: 'zh-CN',
+                uploadJson: 'admin.php?model=content&action=editor&parital=upload&Type=' + $("#hdfType").val()
+            });
         },
         complete: function() {
             removeMask();

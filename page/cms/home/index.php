@@ -4,6 +4,7 @@ if (!defined('Execute')) {
 }
 header("Content-Type: text/html;charset=utf-8");
 include './config.php';
+$sthContent = $pdo->prepare('select Id, Type, Title, CreateDate from `Content` where Type = :Type and Status = 1 order by `Index` asc, CreateDate desc limit 0, :Count;')
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -93,9 +94,8 @@ include './config.php';
 			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 4)) ?>"><?php echo EnumContentTyp[4] ?></a></h3>
 			<ul>
 				<?php
-				$sth =  $pdo->prepare('select Id, Type, Title, CreateDate from `Content` where Type = 4 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
-				$sth->execute();
-				$news = $sth->fetchAll(PDO::FETCH_ASSOC);
+				$sthContent->execute(array('Type' => 4, 'Count' => 9));
+				$news = $sthContent->fetchAll(PDO::FETCH_ASSOC);
 				foreach ($news as  $new) {
 					echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id'], 'type' => $new['Type']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
 				}
@@ -106,9 +106,8 @@ include './config.php';
 			<h3><a href="<?php ActionLink('list', 'cms',  array("type" => 5)) ?>"><?php echo EnumContentTyp[5] ?></a></h3>
 			<ul>
 				<?php
-				$sth =  $pdo->prepare('select Id, Type, Title, CreateDate from `Content` where Type = 5 and Status = 1 order by `Index` asc, CreateDate desc limit 0, 10;');
-				$sth->execute();
-				$news = $sth->fetchAll(PDO::FETCH_ASSOC);
+				$sthContent->execute(array('Type' => 5, 'Count' => 9));
+				$news = $sthContent->fetchAll(PDO::FETCH_ASSOC);
 				foreach ($news as  $new) {
 					echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $new['Id'], 'type' => $new['Type']), false), '">', $new['Title'], '</a></div><div class="createdate">', date_format(date_create($new['CreateDate']), "Y-m-d"), '</div></li>';
 				}

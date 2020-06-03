@@ -3,14 +3,15 @@ if (!defined('Execute') || !defined('IsAdmin')) {
     exit();
 }
 ?>
-<ul class="breadcrumb" style="display: none">
+<ul class="breadcrumb">
     <li>
         <i class="icon-home home-icon"></i>
-        <a href="#">Home</a>
+        <a href="<?php ActionLink('index', 'home') ?>">首页</a>
     </li>
-
-    <li>
-        <a href="#">Other Pages</a>
-    </li>
-    <li class="active">Blank Page</li>
+    <?php
+    if (Model == 'content') {
+        $type = GetGetParam('Type', 0);
+        echo '<li>', EnumContentTyp[$type], '</li>';
+    }
+    ?>
 </ul>

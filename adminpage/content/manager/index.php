@@ -3,10 +3,18 @@ if (!defined('Execute') || !defined('IsAdmin')) {
 	exit();
 }
 
-Render('header');
+Render('header1');
 ?>
 <link href="/<?php echo SOURCE_DIR ?>/content/manager/index.css" rel="stylesheet" />
 <script src="/<?php echo SOURCE_DIR ?>/content/manager/index.js"></script>
+
+<link rel="stylesheet" href="/assets/kindeditor/themes/default/default.css" />
+<script charset="utf-8" src="/assets/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="/assets/kindeditor/lang/zh-CN.js"></script>
+<script charset="utf-8" src="/assets/kindeditor/plugins/image/image.js"></script>
+<?php
+Render('header2');
+?>
 <div id="manangertoolbar" class="col-xs-12">
 	<input type="hidden" id="hdfPageIndex" value="1" />
 	<input type="hidden" id="hdfPageSize" value="20" />
@@ -15,16 +23,17 @@ Render('header');
 	<div class="col-xs-10 text-left">
 		<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="btnEditorClick(this,0)">新增</a>
 		<select class="input-sm" id="ddlMatchType">
-			<option value="1">精确匹配</option>
-			<option value="2">匹配开始</option>
-			<option value="3">匹配结束</option>
-			<option value="4">模糊匹配</option>
+			<?php
+			foreach (EnumMatchType as $key => $val) {
+				echo '<option value="', $key, '">', $val, '</option>';
+			}
+			?>
 		</select>
 		<select class="input-sm" id="ddlStatus">
 			<option value="0">状态查询</option>
 			<?php
 			foreach (EnumContentStatus as $key => $val) {
-				echo "<option value=\"$key\">$val</option>";
+				echo '<option value="', $key, '">', $val, '</option>';
 			}
 			?>
 		</select>

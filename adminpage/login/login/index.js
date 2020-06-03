@@ -7,7 +7,7 @@ function btnLoginClick(sender) {
     };
     loadMask();
     ajaxSubmit({
-        url: 'admin.php?model=login&action=checklogin',
+        url: 'admin.php?model=login&action=login&parital=indexpartial',
         data: data,
         type: 'post',
         success: function(ret) {

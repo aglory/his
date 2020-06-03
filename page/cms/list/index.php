@@ -22,7 +22,11 @@ if (array_key_exists('type', $_GET)) {
 }
 $pageStart = ($pageIndex - 1) * $pageSize;
 $pageEnd = $pageStart  + $pageSize;
-
+$keyWord = '';
+if (array_key_exists('keyWord', $_GET)) {
+	$keyWord = $_GET['keyWord'];
+}
+$params = array();
 
 ?>
 <!DOCTYPE HTML>
@@ -75,9 +79,13 @@ $pageEnd = $pageStart  + $pageSize;
 					if (array_key_exists($type, EnumContentTyp)) {
 						$whereClause .= " and Type = $type";
 					}
-
+					if (!empty($keyWord)) {
+						$p = BuildSafeSqlMatchType(4, 'Title', $keyWord);
+						$whereClause .= " and " . $p[0];
+						$params[] = $p[1];
+					}
 					$sthContentList =  $pdo->prepare("select Id, Type, Title, CreateDate from `Content` where $whereClause order by `Index` asc, CreateDate desc limit $pageStart, $pageSize;");
-					$sthContentList->execute();
+					$sthContentList->execute($params);
 					$contents = $sthContentList->fetchAll(PDO::FETCH_ASSOC);
 					foreach ($contents as  $content) {
 						echo '<li><div class="title"><a href="', ActionLink('detail', 'cms', array('id' => $content['Id'], 'type' => $content['Type']), false), '">', $content['Title'], '</a></div><div class="createdate">', date_format(date_create($content['CreateDate']), "Y-m-d"), '</div></li>';
@@ -88,15 +96,18 @@ $pageEnd = $pageStart  + $pageSize;
 		</div>
 		<?php
 		$sthContentStatic = $pdo->prepare("select count(1) recordCount from `Content` where $whereClause;");
-		$sthContentStatic->execute();
+		$sthContentStatic->execute($params);
 		$contentStatic = $sthContentStatic->fetch(PDO::FETCH_ASSOC);
 		$page = new Pagination($contentStatic['recordCount'], $pageIndex, $pageSize);
+		$pageParams = array(
+			'model' => Model,
+			'action' => Action,
+			'type' => $type
+		);
+		if (!empty($keyWord))
+			$pageParams['keyWord'] = $keyWord;
 		$page->setQueryParams(
-			array(
-				'model' => Model,
-				'action' => Action,
-				'type' => $_GET['type']
-			)
+			$pageParams
 		);
 		?>
 		<div class="warpper pagination">

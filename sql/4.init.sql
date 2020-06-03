@@ -1,5 +1,7 @@
 
+insert into `Role`(`Name`, `Permissions`, IsInner, CreateDate) values('系统管理员', '1', 1, now());
 insert into `User` (`Name`, `Password`, `Status`, `CreateDate`)values('admin',md5('123456'),1,now());
+insert into `RoleUser`(UserId ,RoleId) values(1, 1);
 
 insert into `Content`(Type, Images, `Index`, Status, CreateDate, Title, Content )values
 					(    1,     '1.jpg,2.jpg,3.jpg,4.jpg,5.jpg,6.jpg,7.jpg,8.jpg,9.jpg,10.jpg',       0,      1,	  now(), '不负韶华，联盟为全生态要素产业孵化工程锦上添花', ''),

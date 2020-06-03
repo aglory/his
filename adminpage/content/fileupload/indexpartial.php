@@ -17,13 +17,17 @@ if (!file_exists($dir))
     mkdir($dir);
 $dir = $dir . DIRECTORY_SEPARATOR;
 $newImages = array();
+$exts = array('.git', '.png', '.bmp', 'jpg');
 for ($i = 0; $i < 10; $i++) {
-    $sourceFile = '';
     $ext = '';
+    $sourceFile = '';
     $uploadFile = GetFileParam('file' . $i);
     $postFilename = GetPostParam('filename' . $i, '');
     if (!empty($uploadFile)) {
         $ext = GetFileExtense($uploadFile['name']);
+        if (!in_array($ext, $exts)) {
+            break;
+        }
         $sourceFile = $uploadFile['tmp_name'];
     } else if (!empty($postFilename)) {
         $ext = GetFileExtense($postFilename);
