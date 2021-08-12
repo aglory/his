@@ -1,9 +1,12 @@
 <?php
 ob_start();
 define('Execute', true);
-
-if (array_key_exists('REQUEST_METHOD', $_SERVER) && $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-  die('Success');
+if (array_key_exists('REQUEST_METHOD', $_SERVER)) {
+  if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    die('OPTIONS:Success');
+  } else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    die('GET:Success');
+  }
 }
 
 function GetRouter()

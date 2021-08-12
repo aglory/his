@@ -2,23 +2,21 @@ import type { UserInfo } from '/#/store';
 import type { ErrorMessageMode } from '/#/axios';
 import { defineStore } from 'pinia';
 import { store } from '/@/store';
-import { RoleEnum } from '/@/enums/roleEnum';
 import { PageEnum } from '/@/enums/pageEnum';
-import { ROLES_KEY, TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum';
+import { TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum';
 import { getAuthCache, setAuthCache } from '/@/utils/auth';
 import { LoginResultModel, LoginParams } from '/@/api/sys/model/userModel';
 import { doLogout, loginApi } from '/@/api/sys/user';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { router } from '/@/router';
-import { usePermissionStore } from '/@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
+import { usePermissionStore } from '/@/store/modules/permission';
 
 interface UserState {
   userInfo: Nullable<UserInfo>;
   token?: string;
-  roleList: RoleEnum[];
   sessionTimeout?: boolean;
 }
 
@@ -29,8 +27,6 @@ export const useUserStore = defineStore({
     userInfo: null,
     // token
     token: undefined,
-    // roleList
-    roleList: [],
     // Whether the login expired
     sessionTimeout: false,
   }),
@@ -41,21 +37,17 @@ export const useUserStore = defineStore({
     getToken(): string {
       return this.token || getAuthCache<string>(TOKEN_KEY);
     },
-    getRoleList(): RoleEnum[] {
-      return this.roleList.length > 0 ? this.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY);
-    },
     getSessionTimeout(): boolean {
       return !!this.sessionTimeout;
+    },
+    getPermission() {
+      return this.getUserInfo().Permission;
     },
   },
   actions: {
     setToken(info: string | undefined) {
       this.token = info;
       setAuthCache(TOKEN_KEY, info);
-    },
-    setRoleList(roleList: RoleEnum[]) {
-      this.roleList = roleList;
-      setAuthCache(ROLES_KEY, roleList);
     },
     setUserInfo(info: UserInfo) {
       this.userInfo = info;
@@ -67,7 +59,6 @@ export const useUserStore = defineStore({
     resetState() {
       this.userInfo = null;
       this.token = '';
-      this.roleList = [];
       this.sessionTimeout = false;
     },
     /**
@@ -94,15 +85,15 @@ export const useUserStore = defineStore({
         if (sessionTimeout) {
           this.setSessionTimeout(false);
         } else if (goHome) {
-          const permissionStore = usePermissionStore();
-          if (!permissionStore.isDynamicAddedRoute) {
-            const routes = await permissionStore.buildRoutesAction();
-            routes.forEach((route) => {
-              router.addRoute(route as unknown as RouteRecordRaw);
-            });
-            router.addRoute(PAGE_NOT_FOUND_ROUTE as unknown as RouteRecordRaw);
-            permissionStore.setDynamicAddedRoute(true);
-          }
+          //const permissionStore = usePermissionStore();
+          // if (!permissionStore.isDynamicAddedRoute) {
+          //   const routes = await permissionStore.buildRoutesAction();
+          //   routes.forEach((route) => {
+          //     router.addRoute(route as unknown as RouteRecordRaw);
+          //   });
+          //   router.addRoute(PAGE_NOT_FOUND_ROUTE as unknown as RouteRecordRaw);
+          //   permissionStore.setDynamicAddedRoute(true);
+          // }
           await router.replace(PageEnum.BASE_HOME);
         }
         return data;
