@@ -1,11 +1,12 @@
 <?php
 ob_start();
 define('Execute', true);
+
+define('ConfigSiteId', 1);
+
 if (array_key_exists('REQUEST_METHOD', $_SERVER)) {
   if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     die('OPTIONS:Success');
-  } else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    die('GET:Success');
   }
 }
 

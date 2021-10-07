@@ -1,5 +1,4 @@
 import type { AppRouteRecordRaw } from '/@/router/types';
-import { t } from '/@/hooks/web/useI18n';
 import {
   REDIRECT_NAME,
   LAYOUT,
@@ -33,8 +32,8 @@ export const PAGE_NOT_FOUND_ROUTE: AppRouteRecordRaw = {
 
 export const REDIRECT_ROUTE: AppRouteRecordRaw = {
   path: '/redirect',
-  name: REDIRECT_NAME,
   component: LAYOUT,
+  name: 'RedirectTo',
   meta: {
     title: REDIRECT_NAME,
     hideBreadcrumb: true,
@@ -57,9 +56,11 @@ export const ERROR_LOG_ROUTE: AppRouteRecordRaw = {
   path: '/error-log',
   name: 'ErrorLog',
   component: LAYOUT,
+  redirect: '/error-log/list',
   meta: {
     title: 'ErrorLog',
     hideBreadcrumb: true,
+    hideChildrenInMenu: true,
   },
   children: [
     {
@@ -67,8 +68,9 @@ export const ERROR_LOG_ROUTE: AppRouteRecordRaw = {
       name: 'ErrorLogList',
       component: () => import('/@/views/sys/error-log/index.vue'),
       meta: {
-        title: t('routes.basic.errorLogList'),
+        title: '错误日志列表',
         hideBreadcrumb: true,
+        currentActiveMenu: '/error-log',
       },
     },
   ],

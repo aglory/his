@@ -9,26 +9,26 @@ export default {
     // support xxx.xxx.xxx
     fetchSetting: {
       // The field name of the current page passed to the background
-      pageField: 'page',
+      pageField: 'PageIndex',
       // The number field name of each page displayed in the background
-      sizeField: 'pageSize',
+      sizeField: 'PageSize',
       // Field name of the form data returned by the interface
-      listField: 'items',
+      listField: 'Items',
       // Total number of tables returned by the interface field name
-      totalField: 'total',
+      totalField: 'PageTotal',
     },
     // Number of pages that can be selected
-    pageSizeOptions: ['10', '50', '80', '100'],
+    pageSizeOptions: ['10', '50', '100', '500'],
     // Default display quantity on one page
-    defaultPageSize: 10,
+    defaultPageSize: 50,
     // Custom general sort function
     defaultSortFn: (sortInfo: SorterResult) => {
       const { field, order } = sortInfo;
       return {
         // The sort field passed to the backend you
-        field,
+        PageColumn: field,
         // Sorting method passed to the background asc/desc
-        order,
+        PageOrderBy: order,
       };
     },
     // Custom general filter function

@@ -14,6 +14,8 @@ export interface RequestOptions {
   joinPrefix?: boolean;
   // Interface address, use the default apiUrl if you leave it blank
   apiUrl?: string;
+  // 请求拼接路径
+  urlPrefix?: string;
   // Error message prompt type
   errorMessageMode?: ErrorMessageMode;
   // Whether to add a timestamp
@@ -24,8 +26,17 @@ export interface RequestOptions {
 }
 
 export interface Result<T = any> {
+  /**
+   * 请求结果处理
+   */
   Result: boolean;
+  /**
+   * 逻辑错误信息
+   */
   Message: string;
+  /**
+   * 返回数据
+   */
   Data: T;
 }
 

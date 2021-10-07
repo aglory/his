@@ -2,37 +2,43 @@ import type { UserInfo } from '/#/store';
 import type { ErrorMessageMode } from '/#/axios';
 import { defineStore } from 'pinia';
 import { store } from '/@/store';
+import { EnumPermission } from '/@/enums/serviceEnum';
 import { PageEnum } from '/@/enums/pageEnum';
 import { TOKEN_KEY, USER_INFO_KEY } from '/@/enums/cacheEnum';
 import { getAuthCache, setAuthCache } from '/@/utils/auth';
-import { LoginResultModel, LoginParams } from '/@/api/sys/model/userModel';
-import { doLogout, loginApi } from '/@/api/sys/user';
-import { useI18n } from '/@/hooks/web/useI18n';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { router } from '/@/router';
+import { h } from 'vue';
+import { LoginRequest, LoginResponse } from '/@/api/state/model/loginModel';
+import { loginApi, logoutApi } from '/@/api/state/state';
+import { usePermissionStore } from '/@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
-import { usePermissionStore } from '/@/store/modules/permission';
 
 interface UserState {
   userInfo: Nullable<UserInfo>;
   token?: string;
   sessionTimeout?: boolean;
+  lastUpdateTime: number;
 }
 
 export const useUserStore = defineStore({
   id: 'app-user',
   state: (): UserState => ({
-    // user info
     userInfo: null,
     // token
     token: undefined,
     // Whether the login expired
     sessionTimeout: false,
+    // Last fetch time
+    lastUpdateTime: 0,
   }),
   getters: {
     getUserInfo(): UserInfo {
-      return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
+      return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || { Permission: [] };
+    },
+    getPermissionCodes(): EnumPermission[] {
+      return this.getUserInfo.Permission;
     },
     getToken(): string {
       return this.token || getAuthCache<string>(TOKEN_KEY);
@@ -40,17 +46,18 @@ export const useUserStore = defineStore({
     getSessionTimeout(): boolean {
       return !!this.sessionTimeout;
     },
-    getPermission() {
-      return this.getUserInfo().Permission;
+    getLastUpdateTime(): number {
+      return this.lastUpdateTime;
     },
   },
   actions: {
     setToken(info: string | undefined) {
-      this.token = info;
+      this.token = info ? info : ''; // for null or undefined value
       setAuthCache(TOKEN_KEY, info);
     },
-    setUserInfo(info: UserInfo) {
+    setUserInfo(info: UserInfo | null) {
       this.userInfo = info;
+      this.lastUpdateTime = new Date().getTime();
       setAuthCache(USER_INFO_KEY, info);
     },
     setSessionTimeout(flag: boolean) {
@@ -60,58 +67,56 @@ export const useUserStore = defineStore({
       this.userInfo = null;
       this.token = '';
       this.sessionTimeout = false;
+      this.lastUpdateTime = 0;
     },
     /**
      * @description: login
      */
     async login(
-      params: LoginParams & {
+      params: LoginRequest & {
         goHome?: boolean;
         mode?: ErrorMessageMode;
-      }
-    ): Promise<LoginResultModel | null> {
+      },
+    ): Promise<LoginResponse> {
       try {
         const { goHome = true, mode, ...loginParams } = params;
         const data = await loginApi(loginParams, mode);
-        const { Token } = data;
-
-        // 保存 Token
-        this.setToken(Token);
-
-        // 保存 登录用户
         this.setUserInfo(data);
-
-        const sessionTimeout = this.sessionTimeout;
-        if (sessionTimeout) {
-          this.setSessionTimeout(false);
-        } else if (goHome) {
-          //const permissionStore = usePermissionStore();
-          // if (!permissionStore.isDynamicAddedRoute) {
-          //   const routes = await permissionStore.buildRoutesAction();
-          //   routes.forEach((route) => {
-          //     router.addRoute(route as unknown as RouteRecordRaw);
-          //   });
-          //   router.addRoute(PAGE_NOT_FOUND_ROUTE as unknown as RouteRecordRaw);
-          //   permissionStore.setDynamicAddedRoute(true);
-          // }
-          await router.replace(PageEnum.BASE_HOME);
-        }
-        return data;
+        const { Token } = data;
+        this.setToken(Token);
+        await this.afterLoginAction(goHome);
+        return Promise.resolve(data);
       } catch (error) {
         return Promise.reject(error);
       }
+    },
+    async afterLoginAction(goHome?: boolean): Promise<void> {
+      const permissionStore = usePermissionStore();
+      if (!permissionStore.isDynamicAddedRoute) {
+        const routes = await permissionStore.buildRoutesAction();
+        routes.forEach((route) => {
+          router.addRoute(route as unknown as RouteRecordRaw);
+        });
+        router.addRoute(PAGE_NOT_FOUND_ROUTE as unknown as RouteRecordRaw);
+        permissionStore.setDynamicAddedRoute(true);
+      }
+      goHome && (await router.replace(PageEnum.BASE_HOME));
+      return Promise.resolve();
     },
     /**
      * @description: logout
      */
     async logout(goLogin = false) {
-      try {
-        await doLogout();
-      } catch {
-        console.log('注销Token失败');
+      if (this.getToken) {
+        try {
+          await logoutApi();
+        } catch {
+          console.log('注销Token失败');
+        }
       }
       this.setToken(undefined);
       this.setSessionTimeout(false);
+      this.setUserInfo(null);
       goLogin && router.push(PageEnum.BASE_LOGIN);
     },
 
@@ -120,11 +125,10 @@ export const useUserStore = defineStore({
      */
     confirmLoginOut() {
       const { createConfirm } = useMessage();
-      const { t } = useI18n();
       createConfirm({
         iconType: 'warning',
-        title: t('sys.app.logoutTip'),
-        content: t('sys.app.logoutMessage'),
+        title: () => h('span', '温馨提醒'),
+        content: () => h('span', '是否确认退出系统?'),
         onOk: async () => {
           await this.logout(true);
         },

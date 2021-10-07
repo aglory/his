@@ -1,17 +1,9 @@
 import type { Router, RouteRecordRaw } from 'vue-router';
-
 import { usePermissionStoreWithOut } from '/@/store/modules/permission';
-
 import { PageEnum } from '/@/enums/pageEnum';
 import { useUserStoreWithOut } from '/@/store/modules/user';
-
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
-
-import { RootRoute } from '/@/router/routes';
-
 const LOGIN_PATH = PageEnum.BASE_LOGIN;
-
-const ROOT_PATH = RootRoute.path;
 
 const whitePathList: PageEnum[] = [LOGIN_PATH];
 
@@ -19,23 +11,23 @@ export function createPermissionGuard(router: Router) {
   const userStore = useUserStoreWithOut();
   const permissionStore = usePermissionStoreWithOut();
   router.beforeEach(async (to, from, next) => {
-    if (
-      from.path === ROOT_PATH &&
-      to.path === PageEnum.BASE_HOME &&
-      userStore.getUserInfo.homePath &&
-      userStore.getUserInfo.homePath !== PageEnum.BASE_HOME
-    ) {
-      next(userStore.getUserInfo.homePath);
-      return;
-    }
+    const token = userStore.getToken;
 
     // Whitelist can be directly entered
     if (whitePathList.includes(to.path as PageEnum)) {
+      if (to.path === LOGIN_PATH && token) {
+        const isSessionTimeout = userStore.getSessionTimeout;
+        try {
+          await userStore.afterLoginAction();
+          if (!isSessionTimeout) {
+            next((to.query?.redirect as string) || '/');
+            return;
+          }
+        } catch {}
+      }
       next();
       return;
     }
-
-    const token = userStore.getToken;
 
     // token does not exist
     if (!token) {
@@ -64,10 +56,9 @@ export function createPermissionGuard(router: Router) {
     if (
       from.path === LOGIN_PATH &&
       to.name === PAGE_NOT_FOUND_ROUTE.name &&
-      to.fullPath !== (userStore.getUserInfo.homePath || PageEnum.BASE_HOME)
+      to.fullPath !== PageEnum.BASE_HOME
     ) {
-      next(userStore.getUserInfo.homePath || PageEnum.BASE_HOME);
-      console.log({ from, to });
+      next(PageEnum.BASE_HOME);
       return;
     }
 
@@ -88,7 +79,7 @@ export function createPermissionGuard(router: Router) {
 
     if (to.name === PAGE_NOT_FOUND_ROUTE.name) {
       // 动态添加路由后，此处应当重定向到fullPath，否则会加载404页面内容
-      next({ path: to.fullPath, replace: true });
+      next({ path: to.fullPath, replace: true, query: to.query });
     } else {
       const redirectPath = (from.query.redirect || to.path) as string;
       const redirect = decodeURIComponent(redirectPath);

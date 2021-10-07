@@ -15,7 +15,7 @@ import { primaryColor } from '../../build/config/themeConfig';
 // ! You need to clear the browser cache after the change
 const setting: ProjectConfig = {
   // Whether to show the configuration button
-  showSettingButton: true,
+  showSettingButton: false,
 
   // Whether to show the theme switch button
   showDarkModeToggle: true,
@@ -24,7 +24,7 @@ const setting: ProjectConfig = {
   settingButtonPosition: SettingButtonPositionEnum.AUTO,
 
   // Permission mode
-  permissionMode: PermissionModeEnum.BACK,
+  permissionMode: PermissionModeEnum.ROUTE_MAPPING,
 
   // Permission-related cache is stored in sessionStorage or localStorage
   permissionCacheType: CacheTypeEnum.LOCAL,
@@ -68,11 +68,11 @@ const setting: ProjectConfig = {
     // Whether to show the full screen button
     showFullScreen: true,
     // Whether to show the document button
-    showDoc: true,
+    showDoc: false,
     // Whether to show the notification button
     showNotice: true,
     // Whether to display the menu search
-    showSearch: true,
+    showSearch: false,
   },
 
   // Menu configuration
@@ -120,15 +120,15 @@ const setting: ProjectConfig = {
   multiTabsSetting: {
     cache: false,
     // Turn on
-    show: true,
+    show: false,
     // Is it possible to drag and drop sorting tabs
-    canDrag: true,
+    canDrag: false,
     // Turn on quick actions
-    showQuick: true,
+    showQuick: false,
     // Whether to show the refresh button
-    showRedo: true,
+    showRedo: false,
     // Whether to show the collapse button
-    showFold: true,
+    showFold: false,
   },
 
   // Transition Setting
@@ -155,7 +155,7 @@ const setting: ProjectConfig = {
   lockTime: 0,
 
   // Whether to show breadcrumbs
-  showBreadCrumb: true,
+  showBreadCrumb: false,
 
   // Whether to show the breadcrumb icon
   showBreadCrumbIcon: false,

@@ -2,17 +2,16 @@ import type { AppRouteRecordRaw, Menu } from '/@/router/types';
 
 import { defineStore } from 'pinia';
 import { store } from '/@/store';
-import { useI18n } from '/@/hooks/web/useI18n';
-import { transformObjToRoute, flatMultiLevelRoutes } from '/@/router/helper/routeHelper';
+import { useUserStore } from './user';
+import { toRaw } from 'vue';
+import { flatMultiLevelRoutes } from '/@/router/helper/routeHelper';
 import { transformRouteToMenu } from '/@/router/helper/menuHelper';
-import { ERROR_LOG_ROUTE, PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
+import { asyncRoutes } from '/@/router/routes';
+import { ERROR_LOG_ROUTE } from '/@/router/routes/basic';
 
 import { filter } from '/@/utils/helper/treeHelper';
 
-import { useMessage } from '/@/hooks/web/useMessage';
 import { PageEnum } from '/@/enums/pageEnum';
-
-import { getMenuList } from '/@/api/sys/menu';
 
 interface PermissionState {
   // Permission code list
@@ -56,8 +55,8 @@ export const usePermissionStore = defineStore({
     },
   },
   actions: {
-    setPermCodeList(permissionCodes: string[]) {
-      this.permCodeList = permissionCodes;
+    setPermCodeList(codeList: string[]) {
+      this.permCodeList = codeList;
     },
 
     setBackMenuList(list: Menu[]) {
@@ -82,83 +81,79 @@ export const usePermissionStore = defineStore({
       this.backMenuList = [];
       this.lastBuildMenuTime = 0;
     },
-    async changePermissionCode(permissionCodes: string[]) {
-      this.setPermCodeList(permissionCodes);
+    async changePermissionCode() {
+      const userStore = useUserStore();
+      userStore.logout();
     },
-    async buildRoutesAction(): Promise<AppRouteRecordRaw[]> {
-      const { t } = useI18n();
+    buildRoutesAction(): Promise<AppRouteRecordRaw[]> {
+      return new Promise((resolve, reject) => {
+        const userStore = useUserStore();
+        let routes: AppRouteRecordRaw[] = [];
+        const permissionCodes = toRaw(userStore.getPermissionCodes);
+        const routeFilter = (route: AppRouteRecordRaw) => {
+          const { meta } = route;
+          const { permissions } = meta || {};
+          if (!permissions) return true;
 
-      let routes: AppRouteRecordRaw[] = [];
+          return permissions.some((permission) =>
+            permissionCodes.some((permissionCode) => permissionCode == permission),
+          );
+        };
 
-      const routeRmoveIgnoreFilter = (route: AppRouteRecordRaw) => {
-        const { meta } = route;
-        const { ignoreRoute } = meta || {};
-        return !ignoreRoute;
-      };
+        const routeRemoveIgnoreFilter = (route: AppRouteRecordRaw) => {
+          const { meta } = route;
+          const { ignoreRoute } = meta || {};
+          return !ignoreRoute;
+        };
 
-      /**
-       * @description 根据设置的首页path，修正routes中的affix标记（固定首页）
-       * */
-      const patchHomeAffix = (routes: AppRouteRecordRaw[]) => {
-        if (!routes || routes.length === 0) return;
-        let homePath: string = PageEnum.BASE_HOME;
-        function patcher(routes: AppRouteRecordRaw[], parentPath = '') {
-          if (parentPath) parentPath = parentPath + '/';
-          routes.forEach((route: AppRouteRecordRaw) => {
-            const { path, children, redirect } = route;
-            const currentPath = path.startsWith('/') ? path : parentPath + path;
-            if (currentPath === homePath) {
-              if (redirect) {
-                homePath = route.redirect! as string;
-              } else {
-                route.meta = Object.assign({}, route.meta, { affix: true });
-                throw new Error('end');
+        /**
+         * @description 根据设置的首页path，修正routes中的affix标记（固定首页）
+         * */
+        const patchHomeAffix = (routes: AppRouteRecordRaw[]) => {
+          if (!routes || routes.length === 0) return;
+          let homePath: string = PageEnum.BASE_HOME;
+          function patcher(routes: AppRouteRecordRaw[], parentPath = '') {
+            if (parentPath) parentPath = parentPath + '/';
+            routes.forEach((route: AppRouteRecordRaw) => {
+              const { path, children, redirect } = route;
+              const currentPath = path.startsWith('/') ? path : parentPath + path;
+              if (currentPath === homePath) {
+                if (redirect) {
+                  homePath = route.redirect! as string;
+                } else {
+                  route.meta = Object.assign({}, route.meta, { affix: true });
+                }
               }
-            }
-            children && children.length > 0 && patcher(children, currentPath);
-          });
-        }
-        try {
-          patcher(routes);
-        } catch (e) {
-          // 已处理完毕跳出循环
-        }
-        return;
-      };
+              children && children.length > 0 && patcher(children, currentPath);
+            });
+          }
+          try {
+            patcher(routes);
+          } catch (e) {
+            reject(e);
+            // 已处理完毕跳出循环
+          }
+          resolve(routes);
+        };
 
-      const { createMessage } = useMessage();
+        routes = filter(asyncRoutes, routeFilter);
+        routes = routes.filter(routeFilter);
+        const menuList = transformRouteToMenu(routes, true);
+        routes = filter(routes, routeRemoveIgnoreFilter);
+        routes = routes.filter(routeRemoveIgnoreFilter);
+        menuList.sort((a, b) => {
+          return (a.meta?.orderNo || 0) - (b.meta?.orderNo || 0);
+        });
 
-      createMessage.loading({
-        content: t('sys.app.menuLoading'),
-        duration: 1,
+        console.info(menuList);
+
+        this.setFrontMenuList(menuList);
+        routes = flatMultiLevelRoutes(routes);
+
+        routes.push(ERROR_LOG_ROUTE);
+        patchHomeAffix(routes);
+        return routes;
       });
-
-      // !Simulate to obtain permission codes from the background,
-      // this function may only need to be executed once, and the actual project can be put at the right time by itself
-      let routeList: AppRouteRecordRaw[] = [];
-      try {
-        routeList = (await getMenuList()) as AppRouteRecordRaw[];
-      } catch (error) {
-        console.error(error);
-      }
-
-      // Dynamically introduce components
-      routeList = transformObjToRoute(routeList);
-
-      //  Background routing to menu structure
-      const backMenuList = transformRouteToMenu(routeList);
-      this.setBackMenuList(backMenuList);
-
-      // remove meta.ignoreRoute item
-      routeList = filter(routeList, routeRmoveIgnoreFilter);
-      routeList = routeList.filter(routeRmoveIgnoreFilter);
-
-      routeList = flatMultiLevelRoutes(routeList);
-      routes = [PAGE_NOT_FOUND_ROUTE, ...routeList];
-
-      routes.push(ERROR_LOG_ROUTE);
-      patchHomeAffix(routes);
-      return routes;
     },
   },
 });

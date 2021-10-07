@@ -3,42 +3,78 @@ if (!defined('Execute')) {
   exit();
 }
 
+/**
+ * api通讯安全码
+ */
 function GetSecurityKey()
 {
-  return '1e7b3492-f022-11eb-9116-e0d55ecbb109';
+  return Authorize_Security_Key;
 }
 
-function GetOperator()
+/**
+ * 建立通讯Token明文
+ */
+function BuildSecurityValue($authorize)
+{
+  return md5(
+    $authorize['Id'] .
+      $authorize['LoginName'] .
+      $authorize['RealName'] .
+      $authorize['Type'] .
+      implode(',', $authorize['Permission']) .
+      GetSecurityKey()
+  );
+}
+
+/**
+ * 建立客户端Token
+ */
+function BuildToken($authorize)
+{
+  return json_encode(array(
+    'Id' => $authorize['Id'],
+    'SiteId' => $authorize['SiteId'],
+    'LoginName' => $authorize['LoginName'],
+    'RealName' => $authorize['RealName'],
+    'Type' => $authorize['Type'],
+    'Permission' => $authorize['Permission'],
+    'Token' => BuildSecurityValue($authorize)
+  ));
+}
+
+/**
+ * 登录信息
+ */
+function GetAuthorize()
 {
   if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER)) {
-    $operator = json_decode(str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']));
+    $authorize = json_decode(str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']));
     if (
-      isset($operator->Token) &&
-      isset($operator->Id) &&
-      isset($operator->LoginName) &&
-      isset($operator->RealName) &&
-      isset($operator->Type) &&
-      isset($operator->Permission) &&
-      $operator->SecurityKey == md5(
-        $operator->Id .
-          $operator->LoginName .
-          $operator->RealName .
-          $operator->Type .
-          implode(',', $operator->Permission) .
-          GetSecurityKey()
-      )
+      isset($authorize->Id) &&
+      isset($authorize->SiteId) &&
+      isset($authorize->LoginName) &&
+      isset($authorize->RealName) &&
+      isset($authorize->Type) &&
+      isset($authorize->Permission) &&
+      isset($authorize->Token)
     ) {
-      return array(
-        'Id' => $operator->Id,
-        'LoginName' => $operator->LoginName,
-        'RealName' => $operator->RealName,
-        'Type' => $operator->Type,
-        'Permission' => $operator->Permission
+      $ret = array(
+        'Id' => $authorize->Id,
+        'SiteId' => $authorize->SiteId,
+        'LoginName' => $authorize->LoginName,
+        'RealName' => $authorize->RealName,
+        'Type' => $authorize->Type,
+        'Permission' => $authorize->Permission,
       );
+      if ($authorize->Token == BuildSecurityValue($ret)) {
+        return $ret;
+      }
     }
   }
+
   return array(
     'Id' => 0,
+    'SiteId' => 0,
     'LoginName' => '',
     'RealName' => '',
     'Type' => 0,
@@ -51,25 +87,21 @@ function GetOperator()
  */
 function CheckAuthorized($codes)
 {
-  $operator = GetOperator();
+  $authorize = GetAuthorize();
 
-
-  if ($operator['Id'] > 0) {
+  if ($authorize['Id'] > 0) {
     if (empty($codes)) {                                        // 没有权限码
-      return $operator;
-    } else if (is_array($codes)) {                              // 数组权限码
-      $all = true;
+      return true;
+    } else if (is_array($codes)) {
       foreach ($codes as $code) {
-        if (!in_array($code, $operator['Permission'])) {
-          $all = false;
-          break;
+        if (!in_array($code, $authorize['Permission'])) {
+          return false;
         }
       }
-      if ($all)
-        return $operator;
+      return true;
     } else {                                                    // 单一权限码
-      if (in_array($codes, $operator['Permission'])) {
-        return $operator;
+      if (in_array($codes, $authorize['Permission'])) {
+        return true;
       }
     }
   }

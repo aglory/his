@@ -30,16 +30,34 @@ export interface ErrorLogInfo {
 }
 
 export interface UserInfo {
-  // 用户id
-  Id: string | number;
-  // 用户登录账号
+  /**
+   * 用户id
+   */
+  Id: number;
+  /**
+   * 站点Id
+   */
+  SiteId: number;
+  /**
+   * 用户名
+   */
   LoginName: string;
-  // 真实名字
+  /**
+   * 真实名字
+   */
   RealName: string;
-  // 用户类型
-  Type: UserType;
-  // 权限码
-  Permission: string[];
+  /**
+   * 头像
+   */
+  Type: UserTypeEnum;
+  /**
+   * 权限列表
+   */
+  Permission: EnumPermission[];
+  /**
+   * token
+   */
+  Token: string;
 }
 
 export interface BeforeMiniState {

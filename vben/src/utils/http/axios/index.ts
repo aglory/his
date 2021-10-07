@@ -15,6 +15,7 @@ import { setObjToUrlParams, deepMerge } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { joinTimestamp, formatRequestDate } from './helper';
+import { useUserStoreWithOut } from '/@/store/modules/user';
 
 const globSetting = useGlobSetting();
 const urlPrefix = globSetting.urlPrefix;
@@ -39,33 +40,47 @@ const transform: AxiosTransform = {
     if (!isTransformResponse) {
       return res.data;
     }
+
     // 错误的时候返回
 
-    const { data } = res;
+    const { status, data } = res;
     if (!data) {
-      // return '[HTTP] Request has no return value';
-      throw new Error(t('sys.api.apiRequestFailed'));
-    }
-    const { Result, Message, Data } = data;
-
-    // 这里逻辑可以根据项目进行修改
-    const hasSuccess = data && Reflect.has(data, 'Result') && Result === true;
-    if (hasSuccess) {
-      return Data;
+      throw new Error(t('请求出错，请稍候重试'));
     }
 
+    let errorMsg = '';
+    const userStore = useUserStoreWithOut();
+
+    switch (status) {
+      case 401:
+        errorMsg = '登录超时,请重新登录!';
+        userStore.setToken(undefined);
+        userStore.logout(true);
+        break;
+      case 200:
+        //  这里 code，result，message为 后台统一的字段，需要在 types.ts内修改为项目自己的接口返回格式
+        if (data.Result) {
+          return data.Data;
+        } else {
+          errorMsg = data.Message;
+        }
+        break;
+    }
+
+    // errorMessageMode=‘modal’的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
+    // errorMessageMode='none' 一般是调用时明确表示不希望自动弹出错误提示
     if (options.errorMessageMode === 'modal') {
-      createErrorModal({ title: t('sys.api.errorTip'), content: Message });
+      createErrorModal({ title: t('sys.api.errorTip'), content: errorMsg });
     } else if (options.errorMessageMode === 'message') {
-      createMessage.error(Message);
+      createMessage.error(errorMsg);
     }
 
-    throw new Error(Message || t('sys.api.apiRequestFailed'));
+    throw new Error(errorMsg || t('sys.api.apiRequestFailed'));
   },
 
   // 请求之前处理config
   beforeRequestHook: (config, options) => {
-    const { apiUrl, joinPrefix, joinParamsToUrl, formatDate, joinTime = true } = options;
+    const { apiUrl, joinPrefix, joinParamsToUrl, formatDate, joinTime = true, urlPrefix } = options;
 
     if (joinPrefix) {
       config.url = `${urlPrefix}${config.url}`;
@@ -100,7 +115,7 @@ const transform: AxiosTransform = {
         if (joinParamsToUrl) {
           config.url = setObjToUrlParams(
             config.url as string,
-            Object.assign({}, config.params, config.data)
+            Object.assign({}, config.params, config.data),
           );
         }
       } else {
@@ -183,8 +198,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         timeout: 10 * 1000,
         // 基础接口地址
         // baseURL: globSetting.apiUrl,
-        // 接口可能会有通用的地址部分，可以统一抽取出来
-        urlPrefix: urlPrefix,
+
         headers: { 'Content-Type': ContentTypeEnum.JSON },
         // 如果是form-data格式
         // headers: { 'Content-Type': ContentTypeEnum.FORM_URLENCODED },
@@ -206,6 +220,8 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           errorMessageMode: 'message',
           // 接口地址
           apiUrl: globSetting.apiUrl,
+          // 接口拼接地址
+          urlPrefix: urlPrefix,
           //  是否加入时间戳
           joinTime: true,
           // 忽略重复请求
@@ -214,8 +230,16 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
           withToken: true,
         },
       },
-      opt || {}
-    )
+      opt || {},
+    ),
   );
 }
 export const defHttp = createAxios();
+
+// other api url
+// export const otherHttp = createAxios({
+//   requestOptions: {
+//     apiUrl: 'xxx',
+//     urlPrefix: 'xxx',
+//   },
+// });
