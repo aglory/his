@@ -10,7 +10,7 @@ const account: AppRouteModule = {
   meta: {
     icon: 'bx:bxs-user-account',
     title: '帐号管理',
-    orderNo: 100000,
+    orderNo: 1,
     permissions: [EnumPermission.帐号管理, EnumPermission.角色管理, EnumPermission.站点管理],
   },
   children: [
@@ -29,6 +29,7 @@ const account: AppRouteModule = {
       path: 'RoleManager',
       name: 'RoleManager',
       component: () => {
+        return import('/@/views/account/RoleManager.vue');
         return import('/@/views/account/RoleManager.vue');
       },
       meta: {

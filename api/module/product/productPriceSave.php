@@ -48,6 +48,7 @@ if (empty($pdomysql))
 
 try {
   $sql = 'update Product set MarketPrice = :MarketPrice, Price = :Price, SettlementPrice = :SettlementPrice where Id = :Id and SiteId = :SiteId;';
+  $sth = $pdomysql->prepare($sql);
   $sth->bindParam(':Id', $id, PDO::PARAM_INT);
   $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
   $sth->bindValue(':MarketPrice', $marketPrice, PDO::PARAM_INT);

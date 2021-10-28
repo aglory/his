@@ -39,7 +39,6 @@ try {
     $sqlParams = array('Id' => $id);
     if ($authorize['Type'] != $enumAccountType['配置员']) {
       $sql = $sql . ' and SiteId = ' . $authorize['SiteId'];
-      $sqlParams['SiteId'] = $authorize['SiteId'];
     }
     $sql .= ';';
     $sth = $pdomysql->prepare($sql);

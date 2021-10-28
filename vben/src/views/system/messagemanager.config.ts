@@ -42,7 +42,7 @@ export const queryColumnsSchema: BasicColumn[] = [
     title: '状态',
     dataIndex: 'IsLocked',
     align: 'center',
-    width: 80,
+    width: 100,
     customRender: ({ record }) => {
       if (record.IsLocked) {
         return h('span', { className: 'page-lock' }, '锁定');

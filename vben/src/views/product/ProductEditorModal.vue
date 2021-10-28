@@ -8,9 +8,9 @@
   import { defineComponent, reactive, computed } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { editorFormSchema } from './accountmanager.config';
-  import { AccountManagerResponse } from '../../api/account/model/accountModel';
-  import { accountEditorApi, accountSaveApi } from '/@/api/account/account';
+  import { editorFormSchema } from './productManager.config';
+  import { ProductManagerResponse } from '../../api/product/model/productModel';
+  import { productEditorApi, productSaveApi } from '/@/api/product/product';
 
   export default defineComponent({
     name: 'AccountEditorModal',
@@ -29,62 +29,21 @@
       });
 
       const [registerModal, { setModalProps, closeModal }] = useModalInner(
-        async (data: AccountManagerResponse) => {
+        async (data: ProductManagerResponse) => {
           model.Id = data.Id;
           resetFields();
           setModalProps({ confirmLoading: true, maskClosable: false });
-          let roles: any = [];
           try {
-            const apiResult = await accountEditorApi({ Id: data.Id });
-            roles = apiResult.TempRole.map((item) => {
-              return { label: item.Name, value: item.Id };
-            });
+            const apiResult = await productEditorApi({ Id: data.Id });
             setFieldsValue({
               ...apiResult,
             });
           } catch (ex: any) {}
-          if (model.Id == 0) {
-            updateSchema([
-              {
-                field: 'Type',
-                show: true,
-                required: true,
-              },
-              {
-                field: 'Password',
-                show: true,
-              },
-              {
-                field: 'RepeatPassword',
-                show: true,
-              },
-            ]);
-          } else {
-            updateSchema([
-              {
-                field: 'Type',
-                show: false,
-                required: false,
-              },
-              {
-                field: 'Password',
-                show: false,
-                required: false,
-              },
-              {
-                field: 'RepeatPassword',
-                show: false,
-                dynamicRules: () => {
-                  return [];
-                },
-              },
-            ]);
-          }
           updateSchema([
             {
-              field: 'Role',
+              field: 'Type',
               componentProps: {
-                options: roles,
+                disabled: model.Id > 0,
               },
             },
           ]);
@@ -94,9 +53,9 @@
 
       const getTitle = computed(() => {
         if (model.Id == 0) {
-          return '创建帐号';
+          return '创建产品';
         } else {
-          return '编辑帐号';
+          return '编辑产品';
         }
       });
 
@@ -104,7 +63,7 @@
         try {
           const values = await validate();
           setModalProps({ confirmLoading: true });
-          await accountSaveApi(values);
+          await productSaveApi(values);
           closeModal();
           emit('success');
         } catch (ex: any) {

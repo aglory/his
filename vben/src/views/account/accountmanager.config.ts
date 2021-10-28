@@ -61,14 +61,13 @@ export const queryColumnsSchema: BasicColumn[] = [
   {
     title: '角色',
     dataIndex: 'Role',
-    width: 200,
     align: 'left',
   },
   {
     title: '状态',
     dataIndex: 'IsLocked',
     align: 'center',
-    width: 80,
+    width: 100,
     customRender: ({ record }) => {
       if (record.IsLocked) {
         return h('span', { className: 'page-lock' }, '锁定');
@@ -85,7 +84,7 @@ export const queryColumnsSchema: BasicColumn[] = [
   {
     title: '创建时间',
     dataIndex: 'CreateTime',
-    width: 120,
+    width: 160,
     sorter: true,
   },
 ];

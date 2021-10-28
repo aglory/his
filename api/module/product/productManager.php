@@ -12,7 +12,7 @@ $enumAccountType = GetEnumAccountType();
 // 分页统一参数
 $pageIndex = 1;
 $pageSize = 50;
-$pageColumn = 'Id';
+$pageColumn = 'OrderIndex';
 $pageOrderBy = 'descend';
 
 if (array_key_exists('PageIndex', $_POST)) {
@@ -33,7 +33,7 @@ $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 $columnGeneral = ['Id', 'MarketPrice', 'Price', 'SettlementPrice', 'SaleCopies', 'BaseCopies', 'SortCopies', 'OrderIndex', 'CreateTime'];
 $columnEqual  = ['SiteId'];
 $columnLike  = ['ShortName', 'FullName'];
-$columnIn = ['Type','IsLocked'];
+$columnIn = ['Type', 'IsLocked'];
 
 $sqlWhere = [];
 $sqlParams = [];
@@ -59,13 +59,9 @@ foreach ($_POST as $key => $value) {
     }
   }
 }
-if ($authorize['Type'] == $enumAccountType['配置员']) {
-  $sqlWhere[] = 'Type = ' . $enumAccountType['管理员'];
-} else {
-  $sqlWhere[] = 'Type = ' . $enumAccountType['系统用户'];
+if ($authorize['Type'] != $enumAccountType['配置员']) {
   $sqlWhere[] = 'SiteId = ' . $authorize['SiteId'];
 }
-$sqlWhere[] = 'Id <> ' . $authorize['Id'];
 
 $columns = array_merge($columnGeneral, $columnEqual, $columnLike, $columnIn);
 $sql = 'select SQL_CALC_FOUND_ROWS ' . implode(',', $columns) . ' from Product';
@@ -87,7 +83,7 @@ try {
   $sth = $pdomysql->prepare('select FOUND_ROWS() as total;');
   $sth->execute();
   $statistics = $sth->fetch(PDO::FETCH_ASSOC);
-  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
+  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items), $sql);
 } catch (PDOException $e) {
   JsonResultException($e);
 }

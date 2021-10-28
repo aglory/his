@@ -3,6 +3,10 @@ export enum EnumPermission {
   '角色管理' = 2,
   '站点管理' = 3,
   '公告管理' = 4,
+  '会员管理' = 5,
+  '产品管理' = 6,
+  '订单管理' = 7,
+  '流水管理' = 8,
 }
 
 export enum EnumAccountType {

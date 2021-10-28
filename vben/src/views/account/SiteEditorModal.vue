@@ -33,17 +33,21 @@
           model.Id = data.Id;
           resetFields();
           setModalProps({ confirmLoading: true, maskClosable: false });
-          let apiResult = await siteEditorApi({ Id: data.Id });
-          setFieldsValue({
-            ...apiResult,
-          });
+          let accountIds: any = [];
+          try {
+            let apiResult = await siteEditorApi({ Id: data.Id });
+            accountIds = apiResult.Account.map((item) => {
+              return { label: item.LoginName, value: item.Id };
+            });
+            setFieldsValue({
+              ...apiResult,
+            });
+          } catch (ex: any) {}
           updateSchema([
             {
               field: 'AccountId',
               componentProps: {
-                options: apiResult.Account.map((item) => {
-                  return { label: item.LoginName, value: item.Id };
-                }),
+                options: accountIds,
               },
             },
           ]);

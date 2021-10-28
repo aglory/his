@@ -32,18 +32,22 @@
         async (data: RoleManagerResponse) => {
           model.Id = data.Id;
           resetFields();
-          setModalProps({ confirmLoading: true, maskClosable: false });
-          const apiResult = await roleEditorApi({ Id: data.Id });
-          setFieldsValue({
-            ...apiResult,
-          });
+          let permissions: any = [];
+          try {
+            setModalProps({ confirmLoading: true, maskClosable: false });
+            const apiResult = await roleEditorApi({ Id: data.Id });
+            permissions = apiResult.TempPermission.map((item) => {
+              return { label: item.Name, value: item.Id };
+            });
+            setFieldsValue({
+              ...apiResult,
+            });
+          } catch (ex: any) {}
           updateSchema([
             {
               field: 'Permission',
               componentProps: {
-                options: apiResult.TempPermission.map((item) => {
-                  return { label: item.Name, value: item.Id };
-                }),
+                options: permissions,
               },
             },
           ]);

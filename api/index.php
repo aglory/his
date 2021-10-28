@@ -23,6 +23,9 @@ function JsonResultSuccess(...$params)
 {
   header('Content-Type:application/json;');
   switch (count($params)) {
+    case 2:
+      echo json_encode(array('Result' => true, 'Data' => $params[0], 'Debuger' => $params[1]));
+      break;
     case 1:
       echo json_encode(array('Result' => true, 'Data' => $params[0]));
       break;
@@ -56,7 +59,7 @@ function JsonResultError(...$params)
 /**
  * 输出异常,并且退出程序 
  */
-function JsonResultException($params)
+function JsonResultException(...$params)
 {
   switch (count($params)) {
     case 2:

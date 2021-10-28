@@ -44,6 +44,7 @@ if (empty($pdomysql))
 
 try {
   $sql = 'update Product set BaseCopies = :BaseCopies, SortCopies = :SortCopies where Id = :Id and SiteId = :SiteId;';
+  $sth = $pdomysql->prepare($sql);
   $sth->bindParam(':Id', $id, PDO::PARAM_INT);
   $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
   $sth->bindParam(':BaseCopies', $baseCopies, PDO::PARAM_INT);

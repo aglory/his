@@ -74,7 +74,6 @@ try {
     $sql = 'update Product set ShortName = :ShortName, FullName = :FullName, Description = :Description, Remark = :Remark where Id = :Id and SiteId = :SiteId;';
     $sth->bindParam(':Id', $id, PDO::PARAM_INT);
   }
-  $sth->bindValue(':Id', $id, PDO::PARAM_INT);
   $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
   $sth->bindValue(':ShortName', $shortName, PDO::PARAM_STR);
   $sth->bindParam(':FullName', $fullName, PDO::PARAM_STR);
