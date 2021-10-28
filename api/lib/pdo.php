@@ -28,11 +28,3 @@ function GetPDOLOG()
     array(PDO::MYSQL_ATTR_FOUND_ROWS => true, PDO::ATTR_STRINGIFY_FETCHES => false, PDO::ATTR_EMULATE_PREPARES => false)
   );
 }
-
-/**
- * PDO 错误输出
- */
-function EchoPdoException($PDOException)
-{
-  echo json_encode(array('Result' => false, 'Message' => $PDOException->getMessage()));
-}

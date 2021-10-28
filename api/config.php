@@ -18,7 +18,7 @@ define('PDO_PASSWORD', '123456');
 /**
  * 日志据库
  */
-define('PDO_DNS_LOG', 'mysql:host=localhost;dbname=His;port=3306;charset=utf8');
+define('PDO_DNS_LOG', 'mysql:host=localhost;dbname=HisLog;port=3306;charset=utf8');
 define('PDO_USER_LOG', 'root');
 define('PDO_PASSWORD_LOG', '123456');
 

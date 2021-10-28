@@ -145,8 +145,6 @@ export const usePermissionStore = defineStore({
           return (a.meta?.orderNo || 0) - (b.meta?.orderNo || 0);
         });
 
-        console.info(menuList);
-
         this.setFrontMenuList(menuList);
         routes = flatMultiLevelRoutes(routes);
 

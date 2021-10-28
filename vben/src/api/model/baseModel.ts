@@ -3,6 +3,9 @@ export interface BasicPageParams {
   pageSize: number;
 }
 
+/**
+ * 分页查询返回统一参数
+ */
 export interface BasicFetchResult<T extends any> {
   items: T[];
   total: number;
@@ -44,4 +47,12 @@ export interface BasicQueryResult<T extends any> {
 export interface ChangeLockedStatus {
   Id: number;
   IsLocked: boolean;
+}
+
+/**
+ * 修改排序
+ */
+export interface ChangeOrderIndex {
+  Id: number;
+  OrderIndex: number;
 }

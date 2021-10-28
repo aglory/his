@@ -1,63 +1,59 @@
 <template>
   <div :class="prefixCls">
     <Popover title="" trigger="click" :overlayClassName="`${prefixCls}__overlay`">
-      <Badge :count="count" dot :numberStyle="numberStyle">
+      <Badge :count="count" dot>
         <BellOutlined />
       </Badge>
       <template #content>
-        <Tabs>
-          <template v-for="item in listData" :key="item.key">
-            <TabPane>
-              <template #tab>
-                {{ item.name }}
-                <span v-if="item.list.length !== 0">({{ item.list.length }})</span>
-              </template>
-              <!-- 绑定title-click事件的通知列表中标题是“可点击”的-->
-              <NoticeList :list="item.list" v-if="item.key === '1'" @title-click="onNoticeClick" />
-              <NoticeList :list="item.list" v-else />
-            </TabPane>
-          </template>
-        </Tabs>
+        <div
+          class="messageitem"
+          v-for="(item, index) in model"
+          :key="index"
+          @click="handItemClick(item)"
+        >
+          {{ item.Title }}
+        </div>
       </template>
     </Popover>
   </div>
 </template>
 <script lang="ts">
-  import { computed, defineComponent, ref } from 'vue';
+  import { computed, defineComponent, reactive } from 'vue';
   import { Popover, Tabs, Badge } from 'ant-design-vue';
   import { BellOutlined } from '@ant-design/icons-vue';
-  import { tabListData, ListItem } from './data';
   import NoticeList from './NoticeList.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { messageListApi } from '/@/api/system/system';
+  import { MessageListResponse } from '/@/api/system/model/messageModel';
 
   export default defineComponent({
     components: { Popover, BellOutlined, Tabs, TabPane: Tabs.TabPane, Badge, NoticeList },
     setup() {
       const { prefixCls } = useDesign('header-notify');
-      const { createMessage } = useMessage();
-      const listData = ref(tabListData);
+      const { createInfoModal } = useMessage();
+      const model = reactive<MessageListResponse[]>([]);
 
       const count = computed(() => {
-        let count = 0;
-        for (let i = 0; i < tabListData.length; i++) {
-          count += tabListData[i].list.length;
-        }
-        return count;
+        return model.length;
       });
 
-      function onNoticeClick(record: ListItem) {
-        createMessage.success('你点击了通知，ID=' + record.id);
-        // 可以直接将其标记为已读（为标题添加删除线）,此处演示的代码会切换删除线状态
-        record.titleDelete = !record.titleDelete;
+      messageListApi().then((ret) => {
+        model.splice(0, model.length);
+        ret.forEach((o) => {
+          model.push(o);
+        });
+      });
+
+      function handItemClick(item: MessageListResponse) {
+        createInfoModal({ title: item.Title, content: item.Content });
       }
 
       return {
         prefixCls,
-        listData,
         count,
-        onNoticeClick,
-        numberStyle: {},
+        model,
+        handItemClick,
       };
     },
   });
@@ -70,21 +66,17 @@
 
     &__overlay {
       max-width: 360px;
-    }
+      min-width: 200px;
 
-    .ant-tabs-content {
-      width: 300px;
-    }
+      .ant-popover-inner-content {
+        .messageitem {
+          cursor: pointer;
+          border-bottom: 1px dashed black;
 
-    .ant-badge {
-      font-size: 18px;
-
-      .ant-badge-multiple-words {
-        padding: 0 4px;
-      }
-
-      svg {
-        width: 0.9em;
+          &:last-child {
+            border-bottom-style: none;
+          }
+        }
       }
     }
   }

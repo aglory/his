@@ -184,5 +184,8 @@
   "i18n-ally.enabledFrameworks": ["vue", "react"],
   "[json]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+},
+"[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+}
 }

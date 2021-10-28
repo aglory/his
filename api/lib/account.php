@@ -85,28 +85,59 @@ function GetAuthorize()
 /**
  * 检查用户是否授权
  */
-function CheckAuthorized($codes)
+function CheckAuthorized(...$codes)
 {
   $authorize = GetAuthorize();
 
   if ($authorize['Id'] > 0) {
     if (empty($codes)) {                                        // 没有权限码
-      return true;
-    } else if (is_array($codes)) {
+      return;
+    } else {
       foreach ($codes as $code) {
         if (!in_array($code, $authorize['Permission'])) {
-          return false;
+          header('HTTP/1.1 401 Unauthorized');
+          header('status: 401 Unauthorized');
+          exit();
         }
       }
-      return true;
-    } else {                                                    // 单一权限码
-      if (in_array($codes, $authorize['Permission'])) {
-        return true;
-      }
+      return;                                                   // 用户有权限码
     }
   }
 
   header('HTTP/1.1 401 Unauthorized');
   header('status: 401 Unauthorized');
-  return false;
+  exit();
+}
+
+/**
+ * 检查用户类型是否为确定类型
+ */
+function CheckAuthorizeType($accountType)
+{
+  $authorize = GetAuthorize();
+
+  if ($authorize['Type'] === $accountType) {
+    return;
+  }
+
+  header('HTTP/1.1 401 Unauthorized');
+  header('status: 401 Unauthorized');
+  exit();
+}
+
+
+/**
+ * 检查用户类型非指定确定类型
+ */
+function CheckWidthOutAuthorizeType($accountType)
+{
+  $authorize = GetAuthorize();
+
+  if ($authorize['Type'] !== $accountType) {
+    return;
+  }
+
+  header('HTTP/1.1 401 Unauthorized');
+  header('status: 401 Unauthorized');
+  exit();
 }
