@@ -8,9 +8,12 @@
   import { defineComponent, reactive, computed } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { editorFormSchema } from './accountmanager.config';
+  import { editorFormSchema } from './Accountmanager.config';
   import { AccountManagerResponse } from '../../api/account/model/accountModel';
   import { accountEditorApi, accountSaveApi } from '/@/api/account/account';
+
+  import { useUserStore } from '/@/store/modules/user';
+  import { EnumAccountType } from '/@/enums/serviceEnum';
 
   export default defineComponent({
     name: 'AccountEditorModal',
@@ -18,6 +21,7 @@
     emits: ['success'],
     setup(_, { emit }) {
       const model = reactive({ Id: 0 });
+      const userStore = useUserStore();
 
       const [registerForm, { setFieldsValue, updateSchema, resetFields, validate }] = useForm({
         labelWidth: 100,
@@ -36,6 +40,13 @@
           let roles: any = [];
           try {
             const apiResult = await accountEditorApi({ Id: data.Id });
+            if (model.Id == 0) {
+              if (userStore.getUserInfo.Type == EnumAccountType.配置员) {
+                apiResult.Type = EnumAccountType.管理员;
+              } else {
+                apiResult.Type = EnumAccountType.领导;
+              }
+            }
             roles = apiResult.TempRole.map((item) => {
               return { label: item.Name, value: item.Id };
             });
@@ -45,11 +56,6 @@
           } catch (ex: any) {}
           if (model.Id == 0) {
             updateSchema([
-              {
-                field: 'Type',
-                show: true,
-                required: true,
-              },
               {
                 field: 'Password',
                 show: true,
@@ -62,11 +68,6 @@
           } else {
             updateSchema([
               {
-                field: 'Type',
-                show: false,
-                required: false,
-              },
-              {
                 field: 'Password',
                 show: false,
                 required: false,
@@ -76,6 +77,43 @@
                 show: false,
                 dynamicRules: () => {
                   return [];
+                },
+              },
+            ]);
+          }
+          if (userStore.getUserInfo.Type == EnumAccountType.配置员) {
+            updateSchema([
+              {
+                field: 'Type',
+                defaultValue: EnumAccountType.管理员,
+                componentProps: {
+                  options: [
+                    {
+                      label: EnumAccountType[EnumAccountType.管理员],
+                      value: EnumAccountType.管理员,
+                    },
+                  ],
+                  disabled: model.Id != 0,
+                },
+              },
+            ]);
+          } else {
+            updateSchema([
+              {
+                field: 'Type',
+                defaultValue: EnumAccountType.员工,
+                componentProps: {
+                  options: [
+                    {
+                      label: EnumAccountType[EnumAccountType.领导],
+                      value: EnumAccountType.领导,
+                    },
+                    {
+                      label: EnumAccountType[EnumAccountType.员工],
+                      value: EnumAccountType.员工,
+                    },
+                  ],
+                  disabled: model.Id != 0,
                 },
               },
             ]);

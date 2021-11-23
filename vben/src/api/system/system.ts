@@ -2,9 +2,17 @@ import { defHttp } from '/@/utils/http/axios';
 import { LoginRequest, LoginResponse } from '../state/model/loginModel';
 
 import { ErrorMessageMode } from '/#/axios';
-import { MessageEditorResponse, MessageListResponse, MessageSaveRequest } from './model/messageModel';
+import {
+  MessageEditorResponse,
+  MessageListResponse,
+  MessageSaveRequest,
+} from './model/messageModel';
 import { ContentTypeEnum } from '/@/enums/httpEnum';
 import { BasicQueryResult, ChangeLockedStatus } from '../model/baseModel';
+import {
+  EnterpriseCashHistoryManagerRequest,
+  EnterpriseCashHistoryManagerResponse,
+} from './model/enterpriseHistoryModel';
 
 enum Api {
   MessageManager = '?control=system&action=messageManager',
@@ -12,6 +20,7 @@ enum Api {
   MessageSave = '?control=system&action=messageSave',
   MessageChangeLockedStatus = '?control=system&action=messageChangeLockedStatus',
   MessageList = '?control=system&action=messageList',
+  EnterpriseCashHistoryManager = '?control=system&action=EnterpriseCashHistoryManager',
 }
 
 /**
@@ -96,6 +105,27 @@ export function messageListApi(mode: ErrorMessageMode = 'modal') {
   return defHttp.get<MessageListResponse[]>(
     {
       url: Api.MessageList,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+/**
+ * 现金管理
+ */
+export function enterpriseCashHistoryManagerApi(
+  params: EnterpriseCashHistoryManagerRequest,
+  mode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.post<BasicQueryResult<EnterpriseCashHistoryManagerResponse>>(
+    {
+      url: Api.EnterpriseCashHistoryManager,
+      params,
+      headers: {
+        'Content-Type': ContentTypeEnum.FORM_URLENCODED,
+      },
     },
     {
       errorMessageMode: mode,

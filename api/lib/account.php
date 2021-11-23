@@ -51,6 +51,7 @@ function GetAuthorize()
     $authorize = json_decode(str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']));
     if (
       isset($authorize->Id) &&
+      isset($authorize->Depth) &&
       isset($authorize->SiteId) &&
       isset($authorize->LoginName) &&
       isset($authorize->RealName) &&
@@ -60,6 +61,7 @@ function GetAuthorize()
     ) {
       $ret = array(
         'Id' => $authorize->Id,
+        'Depth' => $authorize->Depth,
         'SiteId' => $authorize->SiteId,
         'LoginName' => $authorize->LoginName,
         'RealName' => $authorize->RealName,
@@ -74,6 +76,7 @@ function GetAuthorize()
 
   return array(
     'Id' => 0,
+    'Depth' => 0,
     'SiteId' => 0,
     'LoginName' => '',
     'RealName' => '',

@@ -10,7 +10,7 @@ $authorize = GetAuthorize();
 $enumAccountType = GetEnumAccountType();
 
 $id = 0;
-$isLocked = '';
+$isLocked = false;
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
@@ -27,10 +27,9 @@ if (empty($content)) {
     $isLocked = $json_data->IsLocked;
 }
 
-if (empty($id) || !in_array($isLocked, array(0, 1))) {
+if (empty($id) || !in_array($isLocked, array(false, true), true)) {
   JsonResultError('参数错误');
 }
-$authorize = GetAuthorize();
 if ($authorize['Id'] == $id) {
   JsonResultError('不能修改自己');
 }
@@ -41,20 +40,17 @@ try {
   if (empty($pdomysql))
     $pdomysql = GetPDO();
 
-  $sql = 'update Account set IsLocked = :IsLocked where Id = :Id and Type = :Type';
-  if ($authorize['Type'] != $enumAccountType['配置员']) {
-    $sql .= ' and SiteId = :SiteId';
+  $sql = 'update Account set IsLocked = :IsLocked where Id = :Id';
+  if ($authorize['Type'] == $enumAccountType['配置员']) {
+    $sql .= ' and Type = ' . $enumAccountType['管理员'];
+  } else {
+    $sql .= ' and SiteId = ' . $authorize['SiteId'];
+    $sql .= ' and Type in(' . $enumAccountType['员工'] . ')';
   }
   $sql .= ';';
   $sth = $pdomysql->prepare($sql);
-  $sth->bindParam(':IsLocked',  $isLocked, PDO::PARAM_BOOL);
   $sth->bindParam(':Id', $id, PDO::PARAM_INT);
-  if ($authorize['Type'] == $enumAccountType['配置员']) {
-    $sth->bindValue(':Type', $enumAccountType['管理员'], PDO::PARAM_INT);
-  } else {
-    $sth->bindValue(':Type', $enumAccountType['系统用户'], PDO::PARAM_INT);
-    $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
-  }
+  $sth->bindParam(':IsLocked',  $isLocked, PDO::PARAM_BOOL);
   $sth->execute();
   JsonResultSuccess();
 } catch (PDOException $e) {

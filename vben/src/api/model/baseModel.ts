@@ -56,3 +56,26 @@ export interface ChangeOrderIndex {
   Id: number;
   OrderIndex: number;
 }
+
+/**
+ * Ant Design of Vue中 AutoCompleteDataSourceItem 接口实现
+ */
+export interface BasicAutoCompleteDataSourceItemKeyLabel {
+  key: number;
+  label: string;
+}
+
+/**
+ * Ant Design of Vue中 AutoCompleteDataSourceItem 接口实现
+ */
+export interface BasicAutoCompleteDataSourceItemKeyValue {
+  key: number;
+  value: string;
+}
+
+/**
+ * Ant Design of Vue中 基础请求信息
+ */
+export interface BasicAutoCompleteRequest {
+  Keyword: string;
+}

@@ -10,7 +10,7 @@ const account: AppRouteModule = {
   meta: {
     icon: 'ion:settings-outline',
     title: '系统管理',
-    orderNo: 100001,
+    orderNo: 1000,
     permissions: [EnumPermission.公告管理],
   },
   children: [
@@ -23,6 +23,17 @@ const account: AppRouteModule = {
       meta: {
         title: '公告管理',
         permissions: [EnumPermission.公告管理],
+      },
+    },
+    {
+      path: 'EnterpriseCashHistoryManager',
+      name: 'EnterpriseCashHistoryManager',
+      component: () => {
+        return import('/@/views/system/EnterpriseCashHistoryManager.vue');
+      },
+      meta: {
+        title: '现金流水',
+        permissions: [EnumPermission.现金管理],
       },
     },
   ],

@@ -1,8 +1,16 @@
 import { h } from 'vue';
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
+import { EnumAccountType, enumRender } from '/@/enums/serviceEnum';
 
 export const searchColumnsSchema: FormSchema[] = [
+  {
+    label: '站点Id',
+    field: 'SiteId',
+    component: 'Input',
+    colProps: { span: 4 },
+    show: false,
+  },
   {
     label: '登录帐号',
     field: 'LoginName',
@@ -25,6 +33,9 @@ export const searchColumnsSchema: FormSchema[] = [
     label: '创建时间',
     field: 'CreateTime',
     component: 'RangePicker',
+    componentProps: {
+      'show-time': true,
+    },
     colProps: { span: 6 },
   },
 ];
@@ -56,6 +67,20 @@ export const queryColumnsSchema: BasicColumn[] = [
     dataIndex: 'Tel',
     align: 'center',
     width: 120,
+    sorter: true,
+  },
+  {
+    title: '类型',
+    dataIndex: 'Type',
+    align: 'center',
+    width: 120,
+    customRender: ({ record }) => {
+      if (record.Type !== undefined) {
+        return enumRender(EnumAccountType, record.Type, '-');
+      } else {
+        return '';
+      }
+    },
     sorter: true,
   },
   {
@@ -96,6 +121,13 @@ export const editorFormSchema: FormSchema[] = [
     defaultValue: 0,
     component: 'Input',
     show: false,
+  },
+  {
+    label: '类型',
+    field: 'Type',
+    component: 'Select',
+    ifShow: true,
+    required: true,
   },
   {
     label: '登录帐号',

@@ -18,7 +18,7 @@
   import { PageWrapper } from '/@/components/Page';
   import { useModal } from '/@/components/Modal';
   import MessageEditorModal from './MessageEditorModal.vue';
-  import { queryColumnsSchema, searchColumnsSchema } from './messagemanager.config';
+  import { queryColumnsSchema, searchColumnsSchema } from './Messagemanager.config';
   import { messageChangeLockedStatusApi, messageManagerApi } from '/@/api/system/system';
   import { onKeyStroke } from '@vueuse/core';
   import { MessageManagerResponse } from '/@/api/system/model/messageModel';

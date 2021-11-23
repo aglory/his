@@ -8,7 +8,7 @@
   import { defineComponent, reactive, computed } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { editorFormSchema } from './rolemanager.config';
+  import { editorFormSchema } from './Rolemanager.config';
   import { RoleManagerResponse } from '/@/api/account/model/roleModel';
   import { roleEditorApi, roleSaveApi } from '/@/api/account/account';
 

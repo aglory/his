@@ -9,7 +9,7 @@ import { getAuthCache, setAuthCache } from '/@/utils/auth';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { router } from '/@/router';
 import { h } from 'vue';
-import { LoginRequest, LoginResponse } from '../../api/system/model/messageModel';
+import { LoginRequest, LoginResponse } from '/@/api/state/model/loginModel';
 import { loginApi, logoutApi } from '/@/api/state/state';
 import { usePermissionStore } from '/@/store/modules/permission';
 import { RouteRecordRaw } from 'vue-router';

@@ -39,8 +39,10 @@ $sqlWhere = [];
 $sqlParams = [];
 foreach ($_POST as $key => $value) {
   if (in_array($key, $columnEqual)) {
-    $sqlWhere[] = "`$key` = :$key";
-    $sqlParams[$key] = "%$value%";
+    if (strlen($value)) {
+      $sqlWhere[] = "`$key` = :$key";
+      $sqlParams[$key] = $value;
+    }
   } else if (in_array($key, $columnLike)) {
     $sqlWhere[] = "`$key` like :$key";
     $sqlParams[$key] = "%$value%";

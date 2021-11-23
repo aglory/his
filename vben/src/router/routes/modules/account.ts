@@ -10,7 +10,7 @@ const account: AppRouteModule = {
   meta: {
     icon: 'bx:bxs-user-account',
     title: '帐号管理',
-    orderNo: 1,
+    orderNo: 2,
     permissions: [EnumPermission.帐号管理, EnumPermission.角色管理, EnumPermission.站点管理],
   },
   children: [

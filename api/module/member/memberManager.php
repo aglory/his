@@ -30,7 +30,7 @@ if (array_key_exists('PageOrderBy', $_POST)) {
 $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 
 // 自定义查询条件
-$columnGeneral = ['Id', 'CreateTime'];
+$columnGeneral = ['Id', 'Balance', 'Integral', 'CreateTime'];
 $columnEqual  = ['SiteId'];
 $columnLike  = ['Name', 'Tel', 'IdcardNo'];
 $columnIn = ['IsLocked'];
@@ -39,8 +39,10 @@ $sqlWhere = [];
 $sqlParams = [];
 foreach ($_POST as $key => $value) {
   if (in_array($key, $columnEqual)) {
-    $sqlWhere[] = "`$key` = :$key";
-    $sqlParams[$key] = "%$value%";
+    if (strlen($value)) {
+      $sqlWhere[] = "`$key` = :$key";
+      $sqlParams[$key] = $value;
+    }
   } else if (in_array($key, $columnLike)) {
     $sqlWhere[] = "`$key` like :$key";
     $sqlParams[$key] = "%$value%";
@@ -49,26 +51,22 @@ foreach ($_POST as $key => $value) {
       return intval($item);
     }, $value)) . ")";
   } else if ($key == 'CreateTime' && count($value) == 2) {
-    if (preg_match('/^(\w{4})-(\w{2})-(\w{2})/', $value[0], $matches)) {
+    if (preg_match('/^(\w{4})-(\w{2})-(\w{2}) (\w{2}):(\w{2}):(\w{2})/', $value[0], $matches)) {
       $sqlWhere[] = 'CreateTime >= :CreateTimeStart';
       $sqlParams['CreateTimeStart'] = $matches[0];
     }
-    if (preg_match('/^(\w{4})-(\w{2})-(\w{2})/', $value[1], $matches)) {
-      $sqlWhere[] = 'CreateTime <= adddate(:CreateTimeEnd, interval 1 day)';
+    if (preg_match('/^(\w{4})-(\w{2})-(\w{2}) (\w{2}):(\w{2}):(\w{2})/', $value[1], $matches)) {
+      $sqlWhere[] = 'CreateTime < :CreateTimeEnd';
       $sqlParams['CreateTimeEnd'] = $matches[0];
     }
   }
 }
-if ($authorize['Type'] == $enumAccountType['配置员']) {
-  $sqlWhere[] = 'Type = ' . $enumAccountType['管理员'];
-} else {
-  $sqlWhere[] = 'Type = ' . $enumAccountType['系统用户'];
+if ($authorize['Type'] != $enumAccountType['配置员']) {
   $sqlWhere[] = 'SiteId = ' . $authorize['SiteId'];
 }
-$sqlWhere[] = 'Id <> ' . $authorize['Id'];
 
 $columns = array_merge($columnGeneral, $columnEqual, $columnLike, $columnIn);
-$sql = 'select SQL_CALC_FOUND_ROWS ' . implode(',', $columns) . ' from Account';
+$sql = 'select SQL_CALC_FOUND_ROWS ' . implode(',', $columns) . ' from Member';
 if (count($sqlWhere)) {
   $sql = $sql . ' where ' . implode(' and ', $sqlWhere);
 }
@@ -84,41 +82,16 @@ try {
   $sth = $pdomysql->prepare($sql);
   $sth->execute($sqlParams);
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
-  $sth = $pdomysql->prepare('select FOUND_ROWS() as total;');
-  $sth->execute();
+  $sql = 'select count(1) as total,sum(Balance) Balance from Member';
+  if (count($sqlWhere)) {
+    $sql = $sql . ' where ' . implode(' and ', $sqlWhere);
+  }
+  $sql = $sql . ';';
+  $sth = $pdomysql->prepare($sql);
+  $sth->execute($sqlParams);
   $statistics = $sth->fetch(PDO::FETCH_ASSOC);
 
-  $roleIds = [];
-  foreach ($items as $item) {
-    if (!empty($item['Role'])) {
-      $itemRoleIds = explode(',', $item['Role']);
-      foreach ($itemRoleIds as $itemRoleId) {
-        if (!in_array($itemRoleId, $roleIds)) {
-          $roleIds[] = $itemRoleId;
-        }
-      }
-    }
-  }
-  if (!empty($roleIds)) {
-    $sth = $pdomysql->prepare('select Id,Name from Role where Id in(' . implode(',', $roleIds) . ')');
-    $sth->execute();
-    $roles = $sth->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($items as &$item) {
-      if (!empty($item['Role'])) {
-        $itemRoleIds = explode(',', $item['Role']);
-        $roleNames = [];
-        foreach ($itemRoleIds as $itemRoleId) {
-          foreach ($roles as $role) {
-            if ($role['Id'] == $itemRoleId) {
-              $roleNames[] = $role['Name'];
-            }
-          }
-        }
-        $item['Role'] = implode(',', $roleNames);
-      }
-    }
-  }
-  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
+  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items, 'Balance' => $statistics['Balance']));
 } catch (PDOException $e) {
   JsonResultException($e);
 }

@@ -5,7 +5,7 @@ if (!defined('Execute')) {
 include_once './lib/account.php';
 include_once './lib/enum.php';
 $enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['帐号管理']);
+CheckAuthorized($enumPermission['会员管理']);
 $authorize = GetAuthorize();
 $enumAccountType = GetEnumAccountType();
 
@@ -24,7 +24,7 @@ if (empty($content)) {
     $id = intval($json_data->Id);
 }
 
-$columns = array('Id' => 0, 'LoginName' => '', 'RealName' => '', 'Tel' => '', 'Role' => '');
+$columns = array('Id' => 0, 'Name' => '', 'Tel' => '', 'IdcardNo' => '', 'Remark' => '');
 
 include_once './lib/pdo.php';
 include_once './lib/stringHelper.php';
@@ -35,34 +35,20 @@ try {
   if (empty($id)) {
     $model = $columns;
   } else {
-    $sql = 'select ' . implode(',', array_keys($columns)) . ' from Account where Id = :Id';
-    if ($authorize['Type'] == $enumAccountType['配置员'])
-      $sql = $sql . ' and Type = ' . $enumAccountType['管理员'];
-    else
-      $sql = $sql . ' and Type = ' . $enumAccountType['系统用户'] . ' and SiteId = ' . $authorize['SiteId'];
-    $sql .= ';';
+    $sql = 'select ' . implode(',', array_keys($columns)) . ' from Member where Id = :Id';
+    $sqlParams = array('Id' => $id);
+    if ($authorize['Type'] != $enumAccountType['配置员']) {
+      $sql = $sql . ' and SiteId = ' . $authorize['SiteId'];
+    }
+    $sql = $sql . ';';
     $sth = $pdomysql->prepare($sql);
-    $sth->execute(array('Id' => $id));
+    $sth->execute($sqlParams);
     $model = $sth->fetch(PDO::FETCH_ASSOC);
     if ($model === false) {
       JsonResultError('参数错误');
     }
   }
-  $model['Role'] = array_map(function ($item) {
-    return intval($item);
-  }, ExplodeRemoveEmptyEntries(',', $model['Role']));
-
-  $sql = 'select Id, Name from Role where SiteId = ' . $authorize['SiteId'];
-  if ($authorize['Type'] == $enumAccountType['配置员']) {
-    $sql .= ' and IsInner = 1';
-  } else {
-    $sql .= ' and IsInner = 0';
-  }
-  $sth = $pdomysql->prepare($sql);
-  $sth->execute();
-  $model['TempRole'] = $sth->fetchAll(PDO::FETCH_ASSOC);
   JsonResultSuccess($model);
 } catch (PDOException $e) {
   JsonResultException($e);
 }
-

@@ -14,6 +14,7 @@ $enumProductType = GetEnumProductType();
 $id = 0;
 $baseCopies = 0;
 $sortCopies = 0;
+$noSort = 0;
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
@@ -32,10 +33,13 @@ if (empty($content)) {
   }
 
   if (isset($json_data->BaseCopies))
-    $baseCopies = floatval($json_data->BaseCopies);
+    $baseCopies = intval($json_data->BaseCopies);
 
   if (isset($json_data->SortCopies))
-    $sortCopies = floatval($json_data->SortCopies);
+    $sortCopies = intval($json_data->SortCopies);
+
+  if (isset($json_data->NoSort))
+    $noSort = intval($json_data->NoSort);
 }
 
 include_once './lib/pdo.php';
@@ -43,12 +47,13 @@ if (empty($pdomysql))
   $pdomysql = GetPDO();
 
 try {
-  $sql = 'update Product set BaseCopies = :BaseCopies, SortCopies = :SortCopies where Id = :Id and SiteId = :SiteId;';
+  $sql = 'update Product set BaseCopies = :BaseCopies, SortCopies = :SortCopies, NoSort = :NoSort where Id = :Id and SiteId = :SiteId;';
   $sth = $pdomysql->prepare($sql);
   $sth->bindParam(':Id', $id, PDO::PARAM_INT);
   $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
   $sth->bindParam(':BaseCopies', $baseCopies, PDO::PARAM_INT);
   $sth->bindParam(':SortCopies', $sortCopies, PDO::PARAM_INT);
+  $sth->bindParam(':NoSort', $noSort, PDO::PARAM_BOOL);
   $sth->execute();
   JsonResultSuccess($id);
 } catch (PDOException $e) {

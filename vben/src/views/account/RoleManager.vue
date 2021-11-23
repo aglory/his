@@ -18,7 +18,7 @@
   import { PageWrapper } from '/@/components/Page';
   import { useModal } from '/@/components/Modal';
   import RoleEditorModal from './RoleEditorModal.vue';
-  import { queryColumnsSchema, searchColumnsSchema } from './rolemanager.config';
+  import { queryColumnsSchema, searchColumnsSchema } from './Rolemanager.config';
   import { roleManagerApi } from '/@/api/account/account';
   import { onKeyStroke } from '@vueuse/core';
 

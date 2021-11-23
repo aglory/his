@@ -10,7 +10,7 @@ const product: AppRouteModule = {
   meta: {
     icon: 'ant-design:shop-outlined',
     title: '产品管理',
-    orderNo: 2,
+    orderNo: 3,
     permissions: [EnumPermission.产品管理],
   },
   children: [

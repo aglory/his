@@ -8,7 +8,7 @@
   import { defineComponent, reactive, computed } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { editorFormSchema } from './productManager.config';
+  import { editorFormSchema } from './ProductManager.config';
   import { ProductManagerResponse } from '../../api/product/model/productModel';
   import { productEditorApi, productSaveApi } from '/@/api/product/product';
 

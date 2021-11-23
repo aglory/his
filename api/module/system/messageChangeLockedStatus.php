@@ -10,7 +10,7 @@ $authorize = GetAuthorize();
 $enumAccountType = GetEnumAccountType();
 
 $id = 0;
-$isLocked = '';
+$isLocked = false;
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
@@ -27,10 +27,9 @@ if (empty($content)) {
     $isLocked = $json_data->IsLocked;
 }
 
-if (empty($id) || !in_array($isLocked, array(0, 1))) {
+if (empty($id) || !in_array($isLocked, array(false, true), true)) {
   JsonResultError('参数错误');
 }
-$authorize = GetAuthorize();
 
 include_once './lib/pdo.php';
 
@@ -40,8 +39,8 @@ try {
 
   $sql = 'update Message set IsLocked = :IsLocked where Id = :Id and SiteId = :SiteId;';
   $sth = $pdomysql->prepare($sql);
-  $sth->bindParam(':IsLocked',  $isLocked, PDO::PARAM_BOOL);
   $sth->bindParam(':Id', $id, PDO::PARAM_INT);
+  $sth->bindParam(':IsLocked',  $isLocked, PDO::PARAM_BOOL);
   $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
   $sth->execute();
   JsonResultSuccess();

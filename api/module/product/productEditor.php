@@ -24,7 +24,7 @@ if (empty($content)) {
     $id = intval($json_data->Id);
 }
 
-$columns = array('Id' => 0, 'Type' => 0, 'ShortName' => '', 'FullName' => '', 'Description' => '', 'Remark' => '');
+$columns = array('Id' => 0, 'Type' => 0, 'Code' => '', 'ShortName' => '', 'FullName' => '', 'Description' => '', 'Remark' => '');
 
 include_once './lib/pdo.php';
 include_once './lib/stringHelper.php';

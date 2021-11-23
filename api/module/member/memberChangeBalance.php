@@ -5,12 +5,15 @@ if (!defined('Execute')) {
 include_once './lib/account.php';
 include_once './lib/enum.php';
 $enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['帐号管理']);
-$authorize = GetAuthorize();
+CheckAuthorized($enumPermission['会员管理']);
 $enumAccountType = GetEnumAccountType();
+CheckWidthOutAuthorizeType($enumAccountType['配置员']);
+$authorize = GetAuthorize();
+$enumMemberBalanceTransactionType =  GetEnumMemberBalanceTransactionType();
 
 $id = 0;
-$password = '';
+$amount = 0;
+$remark = '';
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
@@ -22,42 +25,51 @@ if (empty($content)) {
   }
   if (isset($json_data->Id))
     $id = intval($json_data->Id);
-  if (isset($json_data->Password))
-    $password = $json_data->Password;
+  if (isset($json_data->Amount))
+    $amount = $json_data->Amount;
+  if (isset($json_data->Remark))
+    $remark  = $json_data->Remark;
 }
 
 if (empty($id)) {
   JsonResultError('参数错误');
 }
-if (empty($password)) {
-  JsonResultError('密码不能为空');
+if ($amount <= 0) {
+  JsonResultError('充值金额必须大于0');
 }
 
 include_once './lib/pdo.php';
-include_once './lib/stringHelper.php';
-$salt = GenerateRandomString(6);
 
+/**
+ * 1：更改用户余额
+ * 2：添加用户流水
+ */
 try {
   if (empty($pdomysql))
     $pdomysql = GetPDO();
-
-  $sql = "update Account set Password = :Password, Salt = :Salt where Id = $id and Type = :Type";
-  if ($authorize['Type'] != $enumAccountType['配置员']) {
-    $sql .= ' and SiteId = :SiteId';
-  }
-  $sql .= ';';
+  $pdomysql->beginTransaction();
+  $sql = "update Member set Balance = Balance + :Amount where Id = :Id and SiteId = :SiteId;";
   $sth = $pdomysql->prepare($sql);
-  $sth->bindValue(':Password', md5($password . $salt), PDO::PARAM_STR);
-  $sth->bindValue(':Salt', $salt, PDO::PARAM_STR);
-  if ($authorize['Type'] == $enumAccountType['配置员']) {
-    $sth->bindValue(':Type', $enumAccountType['管理员'], PDO::PARAM_INT);
-  } else {
-    $sth->bindValue(':Type', $enumAccountType['系统用户'], PDO::PARAM_INT);
-    $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
-  }
+  $sth->bindValue(':Id', $id, PDO::PARAM_INT);
+  $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
+  $sth->bindValue(':Amount', $amount, PDO::PARAM_INT);
   $sth->execute();
+  if (!$sth->rowCount()) {
+    JsonResultError('参数错误');
+  }
+  $sql = 'insert into MemberBalanceHistory(SiteId, Type, TypeSign, MemberId, OperatorId, OperatorLoginName, Amount, Balance, Remark, CreateTime) select SiteId, :Type, 1, Id, :OperatorId, :OperatorLoginName, :Amount, Balance, :Remark, now() from Member where Id = :Id and SiteId = :SiteId;';
+  $sth = $pdomysql->prepare($sql);
+  $sth->bindValue(':Id', $id, PDO::PARAM_INT);
+  $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
+  $sth->bindValue(':Type', $enumMemberBalanceTransactionType['用户充值'], PDO::PARAM_INT);
+  $sth->bindValue(':OperatorId', $authorize['Id'], PDO::PARAM_INT);
+  $sth->bindValue(':OperatorLoginName', $authorize['LoginName'], PDO::PARAM_INT);
+  $sth->bindValue(':Amount', $amount, PDO::PARAM_INT);
+  $sth->bindValue(':Remark', $remark, PDO::PARAM_STR);
+  $sth->execute();
+  $pdomysql->commit();
   JsonResultSuccess();
 } catch (PDOException $e) {
+  $pdomysql->rollBack();
   JsonResultException($e);
 }
-

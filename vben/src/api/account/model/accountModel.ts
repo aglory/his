@@ -18,6 +18,10 @@ export interface AccountManagerRequest extends BasicQueryFilter {
    */
   Tel: string;
   /**
+   * 用户类型
+   */
+  Type: EnumAccountType[];
+  /**
    * 是否被锁定
    */
   IsLocked: number[];
@@ -102,7 +106,7 @@ export interface AccountEditorResponse {
   /**
    * 用户类型
    */
-  Type: number;
+  Type: EnumAccountType;
   /**
    * 用户角色
    */

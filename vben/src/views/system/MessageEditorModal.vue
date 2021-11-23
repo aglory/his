@@ -8,7 +8,7 @@
   import { defineComponent, reactive, computed } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { editorFormSchema } from './messagemanager.config';
+  import { editorFormSchema } from './Messagemanager.config';
   import { MessageManagerResponse } from '/@/api/system/model/messageModel';
   import { messageEditorApi, messageSaveApi } from '/@/api/system/system';
 

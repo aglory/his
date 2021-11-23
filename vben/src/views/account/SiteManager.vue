@@ -18,7 +18,7 @@
   import { PageWrapper } from '/@/components/Page';
   import { useModal } from '/@/components/Modal';
   import SiteEditorModal from './SiteEditorModal.vue';
-  import { queryColumnsSchema, searchColumnsSchema } from './sitemanager.config';
+  import { queryColumnsSchema, searchColumnsSchema } from './Sitemanager.config';
   import { siteManagerApi } from '/@/api/account/account';
   import { onKeyStroke } from '@vueuse/core';
 

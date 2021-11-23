@@ -13,6 +13,9 @@ export const searchColumnsSchema: FormSchema[] = [
     label: '创建时间',
     field: 'CreateTime',
     component: 'RangePicker',
+    componentProps: {
+      'show-time': true,
+    },
     colProps: { span: 6 },
   },
 ];

@@ -30,17 +30,19 @@ if (array_key_exists('PageOrderBy', $_POST)) {
 $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 
 // 自定义查询条件
-$columnGeneral = ['Id', 'MarketPrice', 'Price', 'SettlementPrice', 'SaleCopies', 'BaseCopies', 'SortCopies', 'OrderIndex', 'CreateTime'];
-$columnEqual  = ['SiteId'];
+$columnGeneral = ['Id', 'MarketPrice', 'Price', 'SettlementPrice', 'Integral', 'SaleCopies', 'BaseCopies', 'SortCopies', 'OrderIndex', 'CreateTime'];
+$columnEqual  = ['SiteId', 'Code'];
 $columnLike  = ['ShortName', 'FullName'];
-$columnIn = ['Type', 'IsLocked'];
+$columnIn = ['Type', 'NoSort', 'IsLocked'];
 
 $sqlWhere = [];
 $sqlParams = [];
 foreach ($_POST as $key => $value) {
   if (in_array($key, $columnEqual)) {
-    $sqlWhere[] = "`$key` = :$key";
-    $sqlParams[$key] = "%$value%";
+    if (strlen($value)) {
+      $sqlWhere[] = "`$key` = :$key";
+      $sqlParams[$key] = $value;
+    }
   } else if (in_array($key, $columnLike)) {
     $sqlWhere[] = "`$key` like :$key";
     $sqlParams[$key] = "%$value%";
@@ -49,12 +51,12 @@ foreach ($_POST as $key => $value) {
       return intval($item);
     }, $value)) . ")";
   } else if ($key == 'CreateTime' && count($value) == 2) {
-    if (preg_match('/^(\w{4})-(\w{2})-(\w{2})/', $value[0], $matches)) {
+    if (preg_match('/^(\w{4})-(\w{2})-(\w{2}) (\w{2}):(\w{2}):(\w{2})/', $value[0], $matches)) {
       $sqlWhere[] = 'CreateTime >= :CreateTimeStart';
       $sqlParams['CreateTimeStart'] = $matches[0];
     }
-    if (preg_match('/^(\w{4})-(\w{2})-(\w{2})/', $value[1], $matches)) {
-      $sqlWhere[] = 'CreateTime <= adddate(:CreateTimeEnd, interval 1 day)';
+    if (preg_match('/^(\w{4})-(\w{2})-(\w{2}) (\w{2}):(\w{2}):(\w{2})/', $value[1], $matches)) {
+      $sqlWhere[] = 'CreateTime < :CreateTimeEnd';
       $sqlParams['CreateTimeEnd'] = $matches[0];
     }
   }

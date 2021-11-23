@@ -2,6 +2,34 @@ import { BasicQueryFilter } from '../../model/baseModel';
 import { EnumProductType } from '/@/enums/serviceEnum';
 
 /**
+ * @description: 产品自动提示 请求对象
+ */
+export interface AutoQueryProductListRequest {
+  /**
+   * 产品简称
+   */
+  Keyword: string;
+  /**
+   * 产品类型
+   */
+  Type: number[];
+}
+
+/**
+ * @description: 产品自动提示 响应对象
+ */
+export interface AutoQueryProductListResponse {
+  /**
+   * 用户id
+   */
+  Id: number;
+  /**
+   * 产品简称
+   */
+  ShortName: string;
+}
+
+/**
  * @description: 产品管理 请求对象
  */
 export interface ProductManagerRequest extends BasicQueryFilter {
@@ -68,6 +96,10 @@ export interface ProductManagerResponse {
    */
   SettlementPrice: number;
   /**
+   * 积分
+   */
+  Integral: number;
+  /**
    * 销售数量
    */
   SaleCopies: number;
@@ -75,6 +107,10 @@ export interface ProductManagerResponse {
    * 基础销量
    */
   BaseCopies: number;
+  /**
+   * 是否有库存
+   */
+  NoSort: number;
   /**
    * 库存数量
    */
@@ -181,6 +217,10 @@ export interface ProductCopiesEditorResponse {
    * 库存数量
    */
   SortCopies: number;
+  /**
+   * 是否有库存
+   */
+  NoSort: boolean;
 }
 
 /**
@@ -199,6 +239,10 @@ export interface ProductCopiesSaveRequest {
    * 库存数量
    */
   SortCopies: number;
+  /**
+   * 是否有库存
+   */
+  NoSort: number;
 }
 
 /**
@@ -221,6 +265,10 @@ export interface ProductPriceEditorResponse {
    * 结算价
    */
   SettlementPrice: number;
+  /**
+   * 积分
+   */
+  Integral: number;
 }
 
 /**
@@ -243,4 +291,8 @@ export interface ProductPriceSaveRequest {
    * 结算价
    */
   SettlementPrice: number;
+  /**
+   * 积分
+   */
+  Integral: number;
 }

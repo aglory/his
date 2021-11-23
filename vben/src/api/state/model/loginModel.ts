@@ -29,7 +29,7 @@ export interface LoginResponse {
    */
   RealName: string;
   /**
-   * 头像
+   * 用户类型
    */
   Type: EnumAccountType;
   /**

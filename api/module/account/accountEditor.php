@@ -24,7 +24,7 @@ if (empty($content)) {
     $id = intval($json_data->Id);
 }
 
-$columns = array('Id' => 0, 'LoginName' => '', 'RealName' => '', 'Tel' => '', 'Role' => '');
+$columns = array('Id' => 0, 'Type' => 0, 'LoginName' => '', 'RealName' => '', 'Tel' => '', 'Role' => '');
 
 include_once './lib/pdo.php';
 include_once './lib/stringHelper.php';
@@ -39,7 +39,7 @@ try {
     if ($authorize['Type'] == $enumAccountType['配置员'])
       $sql = $sql . ' and Type = ' . $enumAccountType['管理员'];
     else
-      $sql = $sql . ' and Type = ' . $enumAccountType['系统用户'] . ' and SiteId = ' . $authorize['SiteId'];
+      $sql = $sql . ' and Type in(' . $enumAccountType['员工'] . ') and SiteId = ' . $authorize['SiteId'];
     $sql .= ';';
     $sth = $pdomysql->prepare($sql);
     $sth->execute(array('Id' => $id));
@@ -65,4 +65,3 @@ try {
 } catch (PDOException $e) {
   JsonResultException($e);
 }
-

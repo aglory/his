@@ -8,7 +8,7 @@
   import { defineComponent, reactive } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { changeOrderIndexSchema } from './productManager.config';
+  import { changeOrderIndexSchema } from './ProductManager.config';
   import { productChangeOrderIndexApi } from '/@/api/product/product';
   import { ProductManagerResponse } from '/@/api/product/model/productModel';
 

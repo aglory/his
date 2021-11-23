@@ -29,6 +29,9 @@ if (empty($content)) {
   if (isset($json_data->Id))
     $id = $json_data->Id;
 
+  if (isset($json_data->Type))
+    $type = intval($json_data->Type);
+
   if (isset($json_data->LoginName))
     $loginName = $json_data->LoginName;
 
@@ -66,17 +69,21 @@ if (empty($id)) {
   }
 
   try {
-    $sql = 'select * from Account where LoginName = :LoginName and Type = :Type and SiteId = :SiteId';
-    $sth = $pdomysql->prepare($sql);
-    $sth->bindValue(':LoginName', $loginName, PDO::PARAM_STR);
     if ($authorize['Type'] == $enumAccountType['配置员']) {
+      $type = $enumAccountType['管理员'];
       // 配置员 判断未分配出去的站点重名
+      $sql = 'select * from Account where LoginName = :LoginName and Type = ' . $enumAccountType['管理员'] . ' and SiteId = :SiteId';
+      $sth = $pdomysql->prepare($sql);
       $sth->bindValue(':SiteId', 0, PDO::PARAM_INT);
-      $sth->bindValue(':Type', $enumAccountType['管理员'], PDO::PARAM_INT);
     } else {
-      $sth->bindValue(':Type', $enumAccountType['系统用户'], PDO::PARAM_INT);
+      if (!in_array($type, [$enumAccountType['员工']], true)) {
+        JsonResultError('错误的用户类型');
+      }
+      $sql = 'select * from Account where LoginName = :LoginName and Type in(' .  $enumAccountType['员工'] . ') and SiteId = :SiteId';
+      $sth = $pdomysql->prepare($sql);
       $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
     }
+    $sth->bindValue(':LoginName', $loginName, PDO::PARAM_STR);
     $sth->execute();
     $account = $sth->fetch(PDO::FETCH_ASSOC);
     if ($account !== false) {
@@ -114,12 +121,6 @@ try {
 }
 
 try {
-  if ($authorize['Type'] == $enumAccountType['配置员']) {
-    $type = $enumAccountType['管理员'];
-  } else {
-    $type = $enumAccountType['系统用户'];
-  }
-
   if (empty($id)) {
     include_once './lib/stringHelper.php';
     $salt = GenerateRandomString(6);

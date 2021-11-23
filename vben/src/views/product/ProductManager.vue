@@ -26,7 +26,7 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { PageWrapper } from '/@/components/Page';
   import { useModal } from '/@/components/Modal';
-  import { queryColumnsSchema, searchColumnsSchema } from './productManager.config';
+  import { queryColumnsSchema, searchColumnsSchema } from './ProductManager.config';
   import { productChangeLockedStatusApi, productManagerApi } from '/@/api/product/product';
   import { onKeyStroke } from '@vueuse/core';
   import { ProductManagerResponse } from '/@/api/product/model/productModel';
@@ -35,6 +35,9 @@
   import ProductPriceEditorModal from './ProductPriceEditorModal.vue';
   import ProductCopiesEditorModal from './ProductCopiesEditorModal.vue';
   import ProductOrderIndexEditorModal from './ProductOrderIndexEditorModal.vue';
+
+  import { EnumAccountType } from '/@/enums/serviceEnum';
+  import { useUserStore } from '/@/store/modules/user';
 
   export default defineComponent({
     name: 'ProductManager',
@@ -57,17 +60,25 @@
         registerProductOrderIndexEditorModal,
         { openModal: openProductOrderIndexEditorModal },
       ] = useModal();
+
+      const userStore = useUserStore();
       const [registerTable, { reload }] = useTable({
         title: '产品管理',
         canColDrag: true,
         showIndexColumn: false,
         striped: true,
         canResize: true,
-        columns: queryColumnsSchema,
+        columns: queryColumnsSchema.filter(
+          (item) =>
+            userStore.getUserInfo.Type === EnumAccountType.配置员 || item.dataIndex !== 'SiteId',
+        ),
         api: productManagerApi,
         formConfig: {
           labelWidth: 80,
-          schemas: searchColumnsSchema,
+          schemas: searchColumnsSchema.filter(
+            (item) =>
+              userStore.getUserInfo.Type === EnumAccountType.配置员 || item.field !== 'SiteId',
+          ),
         },
         useSearchForm: true,
         showTableSetting: true,

@@ -8,7 +8,7 @@
   import { defineComponent, reactive } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { changePasswordFormSchema } from './accountmanager.config';
+  import { changePasswordFormSchema } from './Accountmanager.config';
   import { accountChangePasswordApi } from '/@/api/account/account';
   import { AccountManagerResponse } from '../../api/account/model/accountModel';
 

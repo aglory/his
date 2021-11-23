@@ -1,5 +1,6 @@
 import { ErrorTypeEnum } from '/@/enums/exceptionEnum';
 import { MenuModeEnum, MenuTypeEnum } from '/@/enums/menuEnum';
+import { EnumAccountType } from '/@/enums/serviceEnum';
 
 // Lock screen information
 export interface LockInfo {
@@ -47,9 +48,9 @@ export interface UserInfo {
    */
   RealName: string;
   /**
-   * 头像
+   * 类型
    */
-  Type: UserTypeEnum;
+  Type: EnumAccountType;
   /**
    * 权限列表
    */

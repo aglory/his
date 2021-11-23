@@ -27,7 +27,7 @@ if (empty($content)) {
 if (empty($id))
   JsonResultError('参数错误');
 
-$columns = array('Id' => 0, 'SaleCopies' => 0, 'BaseCopies' => 0, 'SortCopies' => 0);
+$columns = array('Id' => 0, 'SaleCopies' => 0, 'BaseCopies' => 0, 'SortCopies' => 0, 'NoSort' => 0);
 
 include_once './lib/pdo.php';
 include_once './lib/stringHelper.php';

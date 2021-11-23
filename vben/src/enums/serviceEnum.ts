@@ -1,3 +1,6 @@
+/**
+ * 权限码
+ */
 export enum EnumPermission {
   '帐号管理' = 1,
   '角色管理' = 2,
@@ -7,16 +10,60 @@ export enum EnumPermission {
   '产品管理' = 6,
   '订单管理' = 7,
   '流水管理' = 8,
+  '现金管理' = 9,
 }
 
+/**
+ * 用户类型
+ */
 export enum EnumAccountType {
   '配置员' = 1,
   '管理员' = 2,
-  '普通用户' = 4,
+  '领导' = 4,
+  '员工' = 8,
 }
 
+/**
+ * 产品类型
+ */
 export enum EnumProductType {
   '一般产品' = 1,
+}
+
+/**
+ * 用户余额交易枚举
+ */
+export enum EnumMemberBalanceTransactionType {
+  '用户充值' = 1,
+  '用户消费' = 2,
+}
+
+/**
+ * 用户积分交易枚举
+ */
+export enum EnumMemberIntegralTransactionType {
+  '上分' = 1,
+  '下分' = 2,
+  '购物积分' = 3,
+  '积分支付' = 4,
+}
+
+/**
+ * 企业现金交易枚举
+ */
+export enum EnumEnterpriseCashTransactionType {
+  '充值' = 1,
+  '消费' = 2,
+}
+
+/**
+ * 支付状态
+ */
+export enum EnumPayStatus {
+  '未支付' = 1,
+  '付款中' = 2,
+  '已支付' = 3,
+  '已退款' = 4,
 }
 
 /**

@@ -4,6 +4,8 @@ import { ErrorMessageMode } from '/#/axios';
 import { ContentTypeEnum } from '/@/enums/httpEnum';
 import { BasicQueryResult, ChangeLockedStatus, ChangeOrderIndex } from '../model/baseModel';
 import {
+  AutoQueryProductListRequest,
+  AutoQueryProductListResponse,
   ProductCopiesEditorResponse,
   ProductCopiesSaveRequest,
   ProductEditorResponse,
@@ -15,7 +17,8 @@ import {
 } from './model/productModel';
 
 enum Api {
-  ProductManagerApi = '?control=product&action=productManager',
+  AutoQueryProductList = '?control=product&action=autoQueryProductList',
+  ProductManager = '?control=product&action=productManager',
   ProductChangeLockedStatus = '?control=product&action=productChangeLockedStatus',
   ProductChangeOrderIndex = '?control=product&action=productChangeOrderIndex',
   ProductEditor = '?control=product&action=productEditor',
@@ -27,12 +30,33 @@ enum Api {
 }
 
 /**
+ * 自动提示产品
+ */
+export function autoQueryProductListApi(
+  params: AutoQueryProductListRequest,
+  mode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.post<AutoQueryProductListResponse[]>(
+    {
+      url: Api.AutoQueryProductList,
+      params,
+      headers: {
+        'Content-Type': ContentTypeEnum.FORM_URLENCODED,
+      },
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+/**
  * 产品管理
  */
 export function productManagerApi(params: ProductManagerRequest, mode: ErrorMessageMode = 'modal') {
   return defHttp.post<BasicQueryResult<ProductManagerResponse>>(
     {
-      url: Api.ProductManagerApi,
+      url: Api.ProductManager,
       params,
       headers: {
         'Content-Type': ContentTypeEnum.FORM_URLENCODED,

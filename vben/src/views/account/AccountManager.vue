@@ -20,7 +20,7 @@
   import { useModal } from '/@/components/Modal';
   import AccountEditorModal from './AccountEditorModal.vue';
   import AccountChangePasswordModal from './AccountChangePasswordModal.vue';
-  import { queryColumnsSchema, searchColumnsSchema } from './accountmanager.config';
+  import { queryColumnsSchema, searchColumnsSchema } from './Accountmanager.config';
   import { accountChangeLockedStatusApi, accountManagerApi } from '/@/api/account/account';
   import { onKeyStroke } from '@vueuse/core';
 

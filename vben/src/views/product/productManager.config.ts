@@ -12,6 +12,12 @@ export const searchColumnsSchema: FormSchema[] = [
     show: false,
   },
   {
+    label: '代号',
+    field: 'Code',
+    component: 'Input',
+    colProps: { span: 4 },
+  },
+  {
     label: '产品简称',
     field: 'ShortName',
     component: 'Input',
@@ -28,6 +34,9 @@ export const searchColumnsSchema: FormSchema[] = [
     field: 'CreateTime',
     component: 'RangePicker',
     colProps: { span: 6 },
+    componentProps: {
+      'show-time': true,
+    },
   },
 ];
 
@@ -42,10 +51,17 @@ export const queryColumnsSchema: BasicColumn[] = [
   {
     title: '站点Id',
     dataIndex: 'SiteId',
-    align: 'center',
+    align: 'right',
     width: 100,
     sorter: true,
     ifShow: false,
+  },
+  {
+    title: '代号',
+    dataIndex: 'Code',
+    align: 'left',
+    width: 200,
+    sorter: true,
   },
   {
     title: '产品简称',
@@ -82,6 +98,13 @@ export const queryColumnsSchema: BasicColumn[] = [
     sorter: true,
   },
   {
+    title: '积分',
+    dataIndex: 'Integral',
+    align: 'right',
+    width: 100,
+    sorter: true,
+  },
+  {
     title: '销售数量',
     dataIndex: 'SaleCopies',
     align: 'right',
@@ -96,10 +119,35 @@ export const queryColumnsSchema: BasicColumn[] = [
     sorter: true,
   },
   {
+    title: '库存',
+    dataIndex: 'NoSort',
+    align: 'center',
+    width: 120,
+    customRender: ({ record }) => {
+      if (record.NoSort) {
+        return h('span', { className: 'page-green' }, '无库存');
+      } else {
+        return h('span', { className: 'page-red' }, '有库存');
+      }
+    },
+    filters: [
+      { text: '有库存', value: 0 },
+      { text: '无库存', value: 1 },
+    ],
+    sorter: true,
+  },
+  {
     title: '库存数量',
     dataIndex: 'SortCopies',
     align: 'right',
     width: 100,
+    customRender: ({ record }) => {
+      if (record.NoSort) {
+        return '-';
+      } else {
+        return record.SortCopies;
+      }
+    },
     sorter: true,
   },
   {
@@ -150,6 +198,11 @@ export const editorFormSchema: FormSchema[] = [
     componentProps: {
       options: buildBasicColumnfilters(EnumProductType),
     },
+  },
+  {
+    label: '代号',
+    field: 'Code',
+    component: 'Input',
   },
   {
     label: '产品简称',
@@ -231,6 +284,12 @@ export const changePriceFormSchema: FormSchema[] = [
     defaultValue: 0,
     component: 'Input',
   },
+  {
+    label: '积分',
+    field: 'Integral',
+    defaultValue: 0,
+    component: 'Input',
+  },
 ];
 
 export const changeCopiesFormSchema: FormSchema[] = [
@@ -257,10 +316,19 @@ export const changeCopiesFormSchema: FormSchema[] = [
     component: 'Input',
   },
   {
+    label: '有无库存',
+    field: 'NoSort',
+    defaultValue: false,
+    component: 'Switch',
+  },
+  {
     label: '库存数量',
     field: 'SortCopies',
     defaultValue: 0,
     component: 'Input',
+    show: ({ model }) => {
+      return model.NoSort;
+    },
   },
 ];
 

@@ -13,6 +13,7 @@ $enumProductType = GetEnumProductType();
 
 $id = 0;
 $type = 0;
+$code = '';
 $shortName = '';
 $fullName = '';
 $description = '';
@@ -32,6 +33,9 @@ if (empty($content)) {
 
   if (isset($json_data->Type))
     $type = $json_data->Type;
+
+  if (isset($json_data->Code))
+    $code = $json_data->Code;
 
   if (isset($json_data->ShortName))
     $shortName = $json_data->ShortName;
@@ -68,13 +72,14 @@ if (empty($id)) {
 
 try {
   if (empty($id)) {
-    $sth = $pdomysql->prepare("insert Product(SiteId, Type, ShortName, FullName, Description, Remark, MarketPrice, Price, SettlementPrice, SaleCopies, BaseCopies, SortCopies, OrderIndex, IsLocked, CreateTime)values(:SiteId, :Type, :ShortName, :FullName, :Description, :Remark, 0, 0, 0, 0, 0, 0, 0, true, now());");
+    $sth = $pdomysql->prepare("insert Product(SiteId, Type, Code, ShortName, FullName, Description, Remark, MarketPrice, Price, SettlementPrice, Integral, SaleCopies, BaseCopies, SortCopies, OrderIndex, IsLocked, CreateTime)values(:SiteId, :Type, :Code, :ShortName, :FullName, :Description, :Remark, 0, 0, 0, 0, 0, 0, 0, 0, true, now());");
     $sth->bindValue(':Type', $type, PDO::PARAM_INT);
   } else {
-    $sql = 'update Product set ShortName = :ShortName, FullName = :FullName, Description = :Description, Remark = :Remark where Id = :Id and SiteId = :SiteId;';
+    $sth = $pdomysql->prepare('update Product set Code = :Code, ShortName = :ShortName, FullName = :FullName, Description = :Description, Remark = :Remark where Id = :Id and SiteId = :SiteId;');
     $sth->bindParam(':Id', $id, PDO::PARAM_INT);
   }
   $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
+  $sth->bindValue(':Code', $code, PDO::PARAM_STR);
   $sth->bindValue(':ShortName', $shortName, PDO::PARAM_STR);
   $sth->bindParam(':FullName', $fullName, PDO::PARAM_STR);
   $sth->bindParam(':Description', $description, PDO::PARAM_STR);

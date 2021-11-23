@@ -33,14 +33,16 @@ $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 $columnGeneral = ['Id', 'Role', 'CreateTime'];
 $columnEqual  = ['SiteId'];
 $columnLike  = ['LoginName', 'RealName', 'Tel'];
-$columnIn = ['IsLocked'];
+$columnIn = ['Type', 'IsLocked'];
 
 $sqlWhere = [];
 $sqlParams = [];
 foreach ($_POST as $key => $value) {
   if (in_array($key, $columnEqual)) {
-    $sqlWhere[] = "`$key` = :$key";
-    $sqlParams[$key] = "%$value%";
+    if (strlen($value)) {
+      $sqlWhere[] = "`$key` = :$key";
+      $sqlParams[$key] = $value;
+    }
   } else if (in_array($key, $columnLike)) {
     $sqlWhere[] = "`$key` like :$key";
     $sqlParams[$key] = "%$value%";
@@ -49,12 +51,12 @@ foreach ($_POST as $key => $value) {
       return intval($item);
     }, $value)) . ")";
   } else if ($key == 'CreateTime' && count($value) == 2) {
-    if (preg_match('/^(\w{4})-(\w{2})-(\w{2})/', $value[0], $matches)) {
+    if (preg_match('/^(\w{4})-(\w{2})-(\w{2}) (\w{2}):(\w{2}):(\w{2})/', $value[0], $matches)) {
       $sqlWhere[] = 'CreateTime >= :CreateTimeStart';
       $sqlParams['CreateTimeStart'] = $matches[0];
     }
-    if (preg_match('/^(\w{4})-(\w{2})-(\w{2})/', $value[1], $matches)) {
-      $sqlWhere[] = 'CreateTime <= adddate(:CreateTimeEnd, interval 1 day)';
+    if (preg_match('/^(\w{4})-(\w{2})-(\w{2}) (\w{2}):(\w{2}):(\w{2})/', $value[1], $matches)) {
+      $sqlWhere[] = 'CreateTime < :CreateTimeEnd';
       $sqlParams['CreateTimeEnd'] = $matches[0];
     }
   }
@@ -62,8 +64,8 @@ foreach ($_POST as $key => $value) {
 if ($authorize['Type'] == $enumAccountType['配置员']) {
   $sqlWhere[] = 'Type = ' . $enumAccountType['管理员'];
 } else {
-  $sqlWhere[] = 'Type = ' . $enumAccountType['系统用户'];
   $sqlWhere[] = 'SiteId = ' . $authorize['SiteId'];
+  $sqlWhere[] = 'Type in('  . $enumAccountType['员工'] . ')';
 }
 $sqlWhere[] = 'Id <> ' . $authorize['Id'];
 

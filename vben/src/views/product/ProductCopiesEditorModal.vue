@@ -8,7 +8,7 @@
   import { defineComponent, reactive } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
-  import { changeCopiesFormSchema } from './productManager.config';
+  import { changeCopiesFormSchema } from './ProductManager.config';
   import { productCopiesEditorApi, productCopiesSaveApi } from '/@/api/product/product';
   import { ProductManagerResponse } from '/@/api/product/model/productModel';
 
@@ -35,6 +35,8 @@
           setModalProps({ confirmLoading: true, maskClosable: false });
           try {
             const apiResult = await productCopiesEditorApi({ Id: model.Id });
+            // 处理服务端integer到客户boolean的映射
+            apiResult.NoSort = apiResult.NoSort ? true : false;
             setFieldsValue(apiResult);
           } catch (ex: any) {}
           setModalProps({ confirmLoading: false });
