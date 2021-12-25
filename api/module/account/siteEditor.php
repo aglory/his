@@ -2,23 +2,26 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['站点管理']);
-$enumAccountType = GetEnumAccountType();
-CheckAuthorizeType($enumAccountType['配置员']);
-$authorize = GetAuthorize();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::站点管理);
+$authorization->CheckType(EnumAccountType::配置员);
 
 $id = 0;
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
-  JsonResultError('参数错误');
+  PageHelper::JsonResultError('参数错误');
 } else {
   $json_data = json_decode($content);
   if (empty($json_data)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
 
   if (isset($json_data->Id))
@@ -27,12 +30,9 @@ if (empty($content)) {
 
 $columns = array('Id' => 0, 'Host' => '', 'Remark' => '', 'AccountId' => 0, 'AccountLoginName' => '');
 
-include_once './lib/pdo.php';
-include_once './lib/stringHelper.php';
-
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   if (empty($id)) {
     $model = $columns;
   } else {
@@ -41,19 +41,19 @@ try {
     $sth->execute(array('Id' => $id));
     $model = $sth->fetch(PDO::FETCH_ASSOC);
     if ($model === false) {
-      JsonResultError('参数错误');
+      PageHelper::JsonResultError('参数错误');
       exit();
     }
   }
   if ($model['AccountId'] > 0) {
     $model['Account'] = array(array('Id' => $model['AccountId'], 'LoginName' => $model['AccountLoginName']));
   } else {
-    $sql = 'select Id, LoginName from account where Type = ' . $enumAccountType['管理员'] . ' and  SiteId = 0;';
+    $sql = 'select Id, LoginName from account where Type = ' . EnumAccountType::管理员 . ' and  SiteId = 0;';
     $sth = $pdomysql->prepare($sql);
     $sth->execute();
     $model['Account'] = $sth->fetchAll(PDO::FETCH_ASSOC);
   }
-  JsonResultSuccess($model);
+  PageHelper::JsonResultSuccess($model);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

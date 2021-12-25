@@ -5,7 +5,7 @@ import { EnumPermission } from '/@/enums/serviceEnum';
 const order: AppRouteModule = {
   path: '/order',
   name: 'order',
-  component: LAYOUT,
+  component: null,
   redirect: '/order/orderManager',
   meta: {
     icon: 'ant-design:unordered-list-outlined',

@@ -19,7 +19,7 @@
   import { useModal } from '/@/components/Modal';
   import SiteEditorModal from './SiteEditorModal.vue';
   import { queryColumnsSchema, searchColumnsSchema } from './Sitemanager.config';
-  import { siteManagerApi } from '/@/api/account/account';
+  import { siteChangeLockedStatusApi, siteManagerApi } from '/@/api/account/account';
   import { onKeyStroke } from '@vueuse/core';
 
   export default defineComponent({
@@ -81,6 +81,26 @@
             },
           },
         ];
+        if (record.IsLocked) {
+          btns.push({
+            title: '启用',
+            icon: 'ant-design:unlock-outlined',
+            color: 'success',
+            onClick: () => {
+              handleLock(record);
+            },
+          });
+        } else {
+          btns.push({
+            title: '锁定',
+            icon: 'ant-design:lock-outlined',
+            color: 'error',
+            popConfirm: {
+              title: '确定锁定',
+              confirm: handleLock.bind(null, record),
+            },
+          });
+        }
         return btns;
       }
 
@@ -89,6 +109,18 @@
        */
       function handleEdit(record: Nullable<Recordable>) {
         openSiteEditorModal(true, record == null ? { Id: 0 } : record);
+      }
+
+      /**
+       * 锁定或启用
+       */
+      async function handleLock(record: Recordable) {
+        try {
+          await siteChangeLockedStatusApi({ Id: record.Id, IsLocked: !record.IsLocked });
+          reload();
+        } catch (ex: any) {
+          console.error(ex);
+        }
       }
 
       /**

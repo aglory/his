@@ -2,14 +2,17 @@
   <PageWrapper dense contentFullHeight fixedHeight>
     <BasicTable @register="registerTable">
       <template #toolbar>
-        <a-button type="primary" @click="handleEdit(null)">创建帐号</a-button>
+        <a-button type="primary" @click="handleEdit(null, 0)">创建帐号</a-button>
       </template>
       <template #action="{ record }">
         <TableAction :actions="handActionColumns(record)" />
       </template>
     </BasicTable>
     <AccountEditorModal @register="registerAccountEditorModal" @success="handleRefresh" />
-    <AccountChangePasswordModal @register="registerAccountChangePasswordModal" @success="handleRefresh" />
+    <AccountChangePasswordModal
+      @register="registerAccountChangePasswordModal"
+      @success="handleRefresh"
+    />
   </PageWrapper>
 </template>
 
@@ -35,7 +38,8 @@
     },
     setup() {
       const [registerAccountEditorModal, { openModal: openAccountEditorModal }] = useModal();
-      const [registerAccountChangePasswordModal, { openModal: openAccountChangePasswordModal }] = useModal();
+      const [registerAccountChangePasswordModal, { openModal: openAccountChangePasswordModal }] =
+        useModal();
       const [registerTable, { reload }] = useTable({
         title: '帐号管理',
         canColDrag: true,
@@ -81,7 +85,13 @@
             title: '编辑',
             icon: 'clarity:note-edit-line',
             onClick: () => {
-              handleEdit(record);
+              handleEdit(record, 0);
+            },
+          },
+          {
+            title: '添加',
+            onClick: () => {
+              handleEdit(record, record.Id);
             },
           },
         ];
@@ -120,8 +130,9 @@
       /**
        * 弹出 添加或编辑 对话框
        */
-      function handleEdit(record: Nullable<Recordable>) {
-        openAccountEditorModal(true, record == null ? { Id: 0 } : record);
+      function handleEdit(record: Nullable<Recordable>, parentId: number) {
+        let data = record == null ? { Id: 0 } : record;
+        openAccountEditorModal(true, { Data: data, ParentId: parentId });
       }
 
       /**

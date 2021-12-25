@@ -29,12 +29,15 @@ export interface ErrorLogInfo {
   // Error time
   time?: string;
 }
-
 export interface UserInfo {
   /**
    * 用户id
    */
   Id: number;
+  /**
+   * 用户层级
+   */
+  Depth: number;
   /**
    * 站点Id
    */
@@ -55,6 +58,10 @@ export interface UserInfo {
    * 权限列表
    */
   Permission: EnumPermission[];
+  /**
+   * 登录时间
+   */
+  TimeSpan: number;
   /**
    * token
    */

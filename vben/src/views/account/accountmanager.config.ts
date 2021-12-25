@@ -2,6 +2,9 @@ import { h } from 'vue';
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
 import { EnumAccountType, enumRender } from '/@/enums/serviceEnum';
+import { useUserStore } from '/@/store/modules/user';
+
+const userStore = useUserStore();
 
 export const searchColumnsSchema: FormSchema[] = [
   {
@@ -60,6 +63,28 @@ export const queryColumnsSchema: BasicColumn[] = [
     dataIndex: 'RealName',
     align: 'left',
     width: 120,
+    sorter: true,
+  },
+  {
+    title: '层级',
+    dataIndex: 'Level',
+    align: 'right',
+    width: 400,
+    customRender: ({ record }) => {
+      let depth = userStore.getUserInfo.Depth;
+      let realNames = new Array<string>();
+      for (let i = 1; i <= depth; i++) {
+        let id = record['Id' + i];
+        if (id > 0) {
+          realNames.push(record['RealName' + i]);
+        }
+      }
+      if (realNames.length) {
+        return realNames.join('/');
+      } else {
+        return '-';
+      }
+    },
     sorter: true,
   },
   {
@@ -123,11 +148,11 @@ export const editorFormSchema: FormSchema[] = [
     show: false,
   },
   {
-    label: '类型',
-    field: 'Type',
-    component: 'Select',
-    ifShow: true,
-    required: true,
+    label: '上级编号',
+    field: 'ParentId',
+    defaultValue: 0,
+    component: 'Input',
+    show: false,
   },
   {
     label: '登录帐号',

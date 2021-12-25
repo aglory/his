@@ -30,8 +30,7 @@ create table Account(
 
 drop table if exists AccountParent;
 create table AccountParent(
-	Id bigint not null primary key														comment '帐号Id',
-	SiteId bigint not null																comment '站点Id',
+	AccountId bigint not null primary key												comment '帐号Id',
 	Depth int not null																	comment '深度',
     Id1	bigint not null	default 0														comment '第一层Id',
     Id2	bigint not null	default 0														comment '第二层Id',
@@ -88,6 +87,7 @@ create table Member(
 	Name varchar(50) not null 															comment '姓名',
 	Tel	varchar(20) not null															comment '电话',
 	IdcardNo varchar(20) not null														comment '身份证',
+	Address varchar(200) not null														comment '地址',
 	Balance decimal(18, 2) not null														comment '余额',
 	Integral int not null																comment '积分',
 	IsLocked bit not null																comment '是否被锁定',

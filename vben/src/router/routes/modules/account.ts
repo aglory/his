@@ -30,7 +30,6 @@ const account: AppRouteModule = {
       name: 'RoleManager',
       component: () => {
         return import('/@/views/account/RoleManager.vue');
-        return import('/@/views/account/RoleManager.vue');
       },
       meta: {
         title: '角色管理',

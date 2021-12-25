@@ -54,7 +54,7 @@ export const queryColumnsSchema: BasicColumn[] = [
   },
   {
     title: '备注',
-    dataIndex: 'Id',
+    dataIndex: 'Remark',
     align: 'left',
     width: 120,
     sorter: true,

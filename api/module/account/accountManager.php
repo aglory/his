@@ -2,12 +2,15 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['帐号管理']);
-$authorize = GetAuthorize();
-$enumAccountType = GetEnumAccountType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::帐号管理);
 
 // 分页统一参数
 $pageIndex = 1;
@@ -30,10 +33,19 @@ if (array_key_exists('PageOrderBy', $_POST)) {
 $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 
 // 自定义查询条件
-$columnGeneral = ['Id', 'Role', 'CreateTime'];
+$columnGeneral = ['Id', 'Depth', 'Role', 'CreateTime'];
 $columnEqual  = ['SiteId'];
 $columnLike  = ['LoginName', 'RealName', 'Tel'];
 $columnIn = ['Type', 'IsLocked'];
+
+$depth = $authorization->Type == EnumAccountType::配置员 ? 1 : $authorization->Depth;
+
+// 现在自己下级的数据
+for ($i = $authorization->Depth; $i <= 9; $i++) {
+  $columnGeneral[] = 'Id' . $i;
+  $columnGeneral[] = 'LoginName' . $i;
+  $columnGeneral[] = 'RealName' . $i;
+}
 
 $sqlWhere = [];
 $sqlParams = [];
@@ -61,16 +73,20 @@ foreach ($_POST as $key => $value) {
     }
   }
 }
-if ($authorize['Type'] == $enumAccountType['配置员']) {
-  $sqlWhere[] = 'Type = ' . $enumAccountType['管理员'];
+if ($authorization->Type == EnumAccountType::配置员) {
+  $sqlWhere[] = 'Type = ' . EnumAccountType::管理员;
 } else {
-  $sqlWhere[] = 'SiteId = ' . $authorize['SiteId'];
-  $sqlWhere[] = 'Type in('  . $enumAccountType['员工'] . ')';
+  // 非配置员,不能越权
+  $sqlWhere[] = 'Id' . $authorization->Depth . ' = ' . $authorization->Id;
+  $sqlWhere[] = 'SiteId = ' . $authorization->SiteId;
+  $sqlWhere[] = 'Type in('  . EnumAccountType::操作员 . ')';
+  $sqlWhere[] = 'Id' . $authorization->Depth . ' = ' . $authorization->Id;
 }
-$sqlWhere[] = 'Id <> ' . $authorize['Id'];
+// 不能查看自己
+$sqlWhere[] = 'Id <> ' . $authorization->Id;
 
 $columns = array_merge($columnGeneral, $columnEqual, $columnLike, $columnIn);
-$sql = 'select SQL_CALC_FOUND_ROWS ' . implode(',', $columns) . ' from Account';
+$sql = 'select SQL_CALC_FOUND_ROWS ' . implode(',', $columns) . ' from ViewAccountParent';
 if (count($sqlWhere)) {
   $sql = $sql . ' where ' . implode(' and ', $sqlWhere);
 }
@@ -78,11 +94,10 @@ if (in_array($pageColumn, $columns)) {
   $sql = $sql . ' order by ' . $pageColumn . ($pageOrderBy == 'descend' ? ' desc' : ' asc');
 }
 $sql = $sql . " limit $pageStart, $pageSize;";
-include_once './lib/pdo.php';
 
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   $sth = $pdomysql->prepare($sql);
   $sth->execute($sqlParams);
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -120,7 +135,7 @@ try {
       }
     }
   }
-  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
+  PageHelper::JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

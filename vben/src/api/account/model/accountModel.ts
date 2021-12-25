@@ -126,6 +126,10 @@ export interface AccountSaveRequest {
    */
   Id: number;
   /**
+   * 上级用户id
+   */
+  ParentId: number;
+  /**
    * 用户名
    */
   LoginName: string;

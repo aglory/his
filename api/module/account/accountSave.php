@@ -2,15 +2,20 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['帐号管理']);
-$authorize = GetAuthorize();
-$enumAccountType = GetEnumAccountType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\EnumProductType;
+use Aglory\PageHelper;
+use Aglory\StringHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::帐号管理);
 
 $id = 0;
-$type = 0;
+$parentId = 0;
 $loginName = '';
 $realName = '';
 $tel = '';
@@ -19,18 +24,18 @@ $role = [];
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
-  JsonResultError('参数错误');
+  PageHelper::JsonResultError('参数错误');
 } else {
   $json_data = json_decode($content);
   if (empty($json_data)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
 
   if (isset($json_data->Id))
     $id = $json_data->Id;
 
-  if (isset($json_data->Type))
-    $type = intval($json_data->Type);
+  if (isset($json_data->ParentId))
+    $parentId = $json_data->ParentId;
 
   if (isset($json_data->LoginName))
     $loginName = $json_data->LoginName;
@@ -48,49 +53,79 @@ if (empty($content)) {
     $role = $json_data->Role;
 }
 
-include_once './lib/pdo.php';
 if (empty($pdomysql))
-  $pdomysql = GetPDO();
+  $pdomysql = DBInstance::GetMain();
 
 // 验证
 if (empty($realName) || strlen($realName) < 2 || strlen($realName) > 50) {
-  JsonResultError('真实姓名必须为1至50个字符');
+  PageHelper::JsonResultError('真实姓名必须为1至50个字符');
 }
 if (empty($tel) || strlen($tel) < 2 || strlen($tel) > 20) {
-  JsonResultError('请输入正确的电话号码');
+  PageHelper::JsonResultError('请输入正确的电话号码');
 }
+
+$accountParent = null;
+
 if (empty($id)) {
   // 添加
   if (empty($loginName) || strlen($loginName) < 2 || strlen($loginName) > 50) {
-    JsonResultError('登录账号必须为2至50个字符');
+    PageHelper::JsonResultError('登录账号必须为2至50个字符');
   }
   if (empty($password)) {
-    JsonResultError('密码不能为空');
+    PageHelper::JsonResultError('密码不能为空');
+  }
+
+  switch ($authorization->Type) {
+    case EnumAccountType::配置员:
+      break;
+    case EnumAccountType::管理员:
+      if (empty($parentId)) {
+        $parentId = $authorization->Id;
+      }
+      try {
+        $sth->$pdomysql->prepare('select * from AccountParent where AccountId = :AccountId;');
+        $sth->bindParam(':AccountId', $parentId, PDO::PARAM_INT);
+        $sth->execute();
+        $accountParent = $sth->fetch(PDO::FETCH_ASSOC);
+        if ($accountParent === false || ($accountParent['Depth'] < $authorization->Depth || $accountParent['Id' . $authorization->Depth] != $authorization->Id)) {
+          PageHelper::JsonResultError('越权错误');
+        }
+        if ($accountParent['Depth'] >= 9) {
+          PageHelper::JsonResultError('用户层级不能超过9层');
+        }
+      } catch (PDOException $e) {
+        PageHelper::JsonResultException($e);
+      }
+      break;
+    default:
+      PageHelper::JsonResultError('错误用户类型');
+      break;
   }
 
   try {
-    if ($authorize['Type'] == $enumAccountType['配置员']) {
-      $type = $enumAccountType['管理员'];
-      // 配置员 判断未分配出去的站点重名
-      $sql = 'select * from Account where LoginName = :LoginName and Type = ' . $enumAccountType['管理员'] . ' and SiteId = :SiteId';
-      $sth = $pdomysql->prepare($sql);
-      $sth->bindValue(':SiteId', 0, PDO::PARAM_INT);
-    } else {
-      if (!in_array($type, [$enumAccountType['员工']], true)) {
-        JsonResultError('错误的用户类型');
-      }
-      $sql = 'select * from Account where LoginName = :LoginName and Type in(' .  $enumAccountType['员工'] . ') and SiteId = :SiteId';
-      $sth = $pdomysql->prepare($sql);
-      $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
+    $sql = 'select * from Account where LoginName = :LoginName and Type = :Type and SiteId = :SiteId';
+    $sth = $pdomysql->prepare($sql);
+    switch ($authorization->Type) {
+      case EnumAccountType::配置员:
+        $sth->bindValue(':Type', EnumAccountType::管理员, PDO::PARAM_INT);
+        $sth->bindValue(':SiteId', 0, PDO::PARAM_INT);
+        break;
+      case EnumAccountType::管理员:
+        $sth->bindValue(':Type', EnumAccountType::操作员, PDO::PARAM_INT);
+        $sth->bindValue(':SiteId', $authorization->SiteId, PDO::PARAM_INT);
+        break;
+      default:
+        PageHelper::JsonResultError('错误用户类型');
+        break;
     }
     $sth->bindValue(':LoginName', $loginName, PDO::PARAM_STR);
     $sth->execute();
     $account = $sth->fetch(PDO::FETCH_ASSOC);
     if ($account !== false) {
-      JsonResultError('帐号已经存在');
+      PageHelper::JsonResultError('帐号已经存在');
     }
   } catch (PDOException $e) {
-    JsonResultException($e);
+    PageHelper::JsonResultException($e);
   }
 } else {
   // 修改
@@ -99,8 +134,8 @@ if (empty($id)) {
 // 角色越权判断
 try {
   if (!empty($role)) {
-    $sql = 'select Id from Role where SiteId = ' . $authorize['SiteId'];
-    if ($authorize['Type'] == $enumAccountType['配置员']) {
+    $sql = 'select Id from Role where SiteId = ' . $authorization->SiteId;
+    if ($authorization->Type == EnumAccountType::配置员) {
       $sql .= ' and IsInner = 1';
     } else {
       $sql .= ' and IsInner = 0';
@@ -112,46 +147,140 @@ try {
 
     foreach ($roleIds as  $roleId) {
       if (!in_array($roleId, $roleIds)) {
-        JsonResultError('错误的角色');
+        PageHelper::JsonResultError('错误的角色');
       }
     }
   }
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }
 
 try {
+  $pdomysql->beginTransaction();
   if (empty($id)) {
-    include_once './lib/stringHelper.php';
-    $salt = GenerateRandomString(6);
+    $salt = StringHelper::GenerateRandomString(6);
     $sth = $pdomysql->prepare("insert Account(SiteId, LoginName, RealName, Tel, Password, Salt, Type, Role, IsLocked, CreateTime)values(:SiteId, :LoginName, :RealName, :Tel, :Password, :Salt, :Type, :Role, false, now());");
     $sth->bindParam(':LoginName', $loginName, PDO::PARAM_STR);
     $sth->bindValue(':Password', md5($password . $salt), PDO::PARAM_STR);
     $sth->bindParam(':Salt', $salt, PDO::PARAM_STR);
-    $sth->bindParam(':Type', $type, PDO::PARAM_INT);
 
-    if ($authorize['Type'] == $enumAccountType['配置员']) {
-      $sth->bindValue(':SiteId', 0, PDO::PARAM_INT);
-    } else {
-      $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
+    switch ($authorization->Type) {
+      case EnumAccountType::配置员:
+        $sth->bindValue(':SiteId', 0, PDO::PARAM_INT);
+        $sth->bindValue(':Type', EnumAccountType::管理员, PDO::PARAM_INT);
+        break;
+      case EnumAccountType::管理员:
+        $sth->bindValue(':SiteId', $authorization->SiteId, PDO::PARAM_INT);
+        $sth->bindValue(':Type', EnumAccountType::操作员, PDO::PARAM_INT);
+        break;
+      default:
+        PageHelper::JsonResultError('错误用户类型');
+        break;
     }
   } else {
     $sql = 'update Account set RealName = :RealName, Tel = :Tel, Role = :Role where Id = :Id';
-    if ($authorize['Type'] != $enumAccountType['配置员']) {
-      $sql .= ' and SiteId = :SiteId';
+
+    switch ($authorization->Type) {
+      case EnumAccountType::配置员:
+        break;
+      case EnumAccountType::管理员:
+        $sql .= ' and SiteId = ' . $authorization->SiteId;
+        break;
+      default:
+        PageHelper::JsonResultError('错误用户类型');
+        break;
     }
     $sql .= ';';
     $sth = $pdomysql->prepare($sql);
     $sth->bindParam(':Id', $id, PDO::PARAM_INT);
-    if ($authorize['Type'] != $enumAccountType['配置员']) {
-      $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
-    }
   }
   $sth->bindParam(':RealName', $realName, PDO::PARAM_STR);
   $sth->bindParam(':Tel', $tel, PDO::PARAM_STR);
   $sth->bindValue(':Role', implode(',', $role), PDO::PARAM_STR);
   $sth->execute();
-  JsonResultSuccess();
+  if (empty($id)) {
+    $id = $pdomysql->lastInsertId();
+    $depth = 1;
+    switch ($authorization->Type) {
+      case EnumAccountType::配置员:
+        $accountParentColumn = array('AccountId' => $id, 'Depth' => 1, 'Id1' => $id, 'LoginName1' => $loginName, 'RealName1' => $realName);
+        break;
+      case EnumAccountType::管理员:
+        $depth = $accountParentColumn['Depth'] + 1;
+        $accountParentColumn = $accountParent;
+        $accountParentColumn['AccountId'] = $id;
+        $accountParentColumn['Depth'] = $depth;
+        $accountParentColumn['Id' . $accountParentColumn['Depth']] = $id;
+        $accountParentColumn['LoginName' . $accountParentColumn['Depth']] = $loginName;
+        $accountParentColumn['RealName' . $accountParentColumn['Depth']] = $realName;
+        break;
+      default:
+        PageHelper::JsonResultError('错误用户类型');
+        break;
+    }
+    $sql = 'insert into AccountParent(AccountId, Depth';
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($accountParentColumn['Id' . $i]) || empty($accountParentColumn['Id' . $i])) {
+        break;
+      }
+      $sql .= ', Id' . $i;
+      $sql .= ', LoginName' . $i;
+      $sql .= ', RealName' . $i;
+    }
+    $sql .= ')values(:AccountId, :Depth';
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($accountParentColumn['Id' . $i]) || empty($accountParentColumn['Id' . $i])) {
+        break;
+      }
+      $sql .= ', :Id' . $i;
+      $sql .= ', :LoginName' . $i;
+      $sql .= ', :RealName' . $i;
+    }
+    $sql .= ');';
+
+    $sth = $pdomysql->prepare($sql);
+    $sth->bindValue(':AccountId', $id, PDO::PARAM_INT);
+    $sth->bindValue(':Depth', $depth, PDO::PARAM_INT);
+    for ($i = 1; $i <= 9; $i++) {
+      if (!isset($accountParentColumn['Id' . $i]) || empty($accountParentColumn['Id' . $i])) {
+        break;
+      }
+      $sth->bindValue(':Id' . $i, $accountParentColumn['Id' . $i], PDO::PARAM_INT);
+      $sth->bindValue(':LoginName' . $i, $accountParentColumn['LoginName' . $i], PDO::PARAM_STR);
+      $sth->bindValue(':RealName' . $i, $accountParentColumn['RealName' . $i], PDO::PARAM_STR);
+    }
+    $sth->execute();
+  } else {
+    $sth = $pdomysql->prepare('select Depth from AccountParent where AccountId = :AccountId;');
+    $sth->bindValue(':AccountId', $id, PDO::PARAM_INT);
+    $sth->execute();
+    $accountParent = $sth->fetch(PDO::FETCH_ASSOC);
+    if ($accountParent === false) {
+      PageHelper::JsonResultError('数据错误');
+    }
+    $depth = $accountParent['Depth'];
+    switch ($authorization->Type) {
+      case EnumAccountType::配置员:
+        $sth = $pdomysql->prepare("update AccountParent set RealName1 = :RealName1 where Id1 = :Id1;");
+        $sth->bindValue(':RealName1', $realName, PDO::PARAM_STR);
+        $sth->bindValue(':Id1', $id, PDO::PARAM_INT);
+        $sth->execute();
+        break;
+      case EnumAccountType::管理员:
+        $parentDepth = $depth - 1;
+        $sth = $pdomysql->prepare("update AccountParent set RealName{$parentDepth} = :RealName{$parentDepth} where Id{$parentDepth} = :Id{$parentDepth};");
+        $sth->bindValue(':RealName' . $parentDepth, $realName, PDO::PARAM_STR);
+        $sth->bindValue(':Id' . $parentDepth, $parentId, PDO::PARAM_INT);
+        $sth->execute();
+        break;
+      default:
+        PageHelper::JsonResultError('错误用户类型');
+        break;
+    }
+  }
+  $pdomysql->commit();
+  PageHelper::JsonResultSuccess(array('Id' => $id, 'Depth' => $depth));
 } catch (PDOException $e) {
-  JsonResultException($e);
+  $pdomysql->rollBack();
+  PageHelper::JsonResultException($e);
 }

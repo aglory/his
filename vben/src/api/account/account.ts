@@ -34,6 +34,7 @@ enum Api {
   RoleSave = '?control=account&action=roleSave',
 
   SiteManager = '?control=account&action=siteManager',
+  SiteChangeLockedStatus = '?control=account&action=siteChangeLockedStatus',
   SiteEditor = '?control=account&action=siteEditor',
   SiteSave = '?control=account&action=siteSave',
 }
@@ -198,6 +199,27 @@ export function siteManagerApi(params: SiteManagerRequest, mode: ErrorMessageMod
       params,
       headers: {
         'Content-Type': ContentTypeEnum.FORM_URLENCODED,
+      },
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+/**
+ * 站点 (启用/锁定)
+ */
+export function siteChangeLockedStatusApi(
+  params: ChangeLockedStatus,
+  mode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.post<void>(
+    {
+      url: Api.SiteChangeLockedStatus,
+      params,
+      headers: {
+        'Content-Type': ContentTypeEnum.JSON,
       },
     },
     {

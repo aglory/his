@@ -6,6 +6,13 @@ create view ViewSite as
 	select s.*, ifnull(a.Id, 0) AccountId, ifnull(a.LoginName,'') AccountLoginName from Site s left join Account a on s.Id = a.SiteId and a.Type = 2;
 
 /**
+	用户表等级视图
+*/
+drop view if exists ViewAccountParent;
+create view ViewAccountParent as 
+	select a.*, ap.* from Account a inner join AccountParent ap on a.Id = ap.AccountId;
+
+/**
 	会员余额流水视图
 */
 drop view if exists ViewMemberBalanceHistory;
@@ -24,6 +31,11 @@ create view ViewMemberIntegralHistory as
 */
 drop view if exists ViewOrder;
 create view ViewOrder as 
-	select o.*, ifnull(m.Name, 0) MemberName, ifnull(m.Tel,'') MemberTel from `Order` o inner join Member m on o.MemberId = m.Id;
+	select 
+		o.*, 
+		ifnull(m.Name, '') MemberName, ifnull(m.Tel,'') MemberTel 
+	from `Order` o 
+	inner join Member m on o.MemberId = m.Id
+;
 
 

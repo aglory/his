@@ -2,13 +2,16 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['站点管理']);
-$enumAccountType = GetEnumAccountType();
-CheckAuthorizeType($enumAccountType['配置员']);
-$authorize = GetAuthorize();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::站点管理);
+$authorization->CheckType(EnumAccountType::配置员);
 
 // 分页统一参数
 $pageIndex = 1;
@@ -33,7 +36,7 @@ $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 // 自定义查询条件
 $columnGeneral = ['Id', 'CreateTime'];
 $columnEqual  = [];
-$columnLike  = ['Host'];
+$columnLike  = ['Host','Remark'];
 $columnIn = ['IsLocked'];
 
 $sqlWhere = [];
@@ -73,18 +76,17 @@ if (in_array($pageColumn, $columns)) {
   $sql = $sql . ' order by ' . $pageColumn . ($pageOrderBy == 'descend' ? ' desc' : ' asc');
 }
 $sql = $sql . " limit $pageStart, $pageSize;";
-include_once './lib/pdo.php';
 
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   $sth = $pdomysql->prepare($sql);
   $sth->execute($sqlParams);
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
   $sth = $pdomysql->prepare('select FOUND_ROWS() as total;');
   $sth->execute();
   $statistics = $sth->fetch(PDO::FETCH_ASSOC);
-  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
+  PageHelper::JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }
