@@ -2,53 +2,53 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['会员管理']);
-$authorize = GetAuthorize();
-$enumAccountType = GetEnumAccountType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::会员管理);
 
 $id = 0;
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
-  JsonResultError('参数错误');
+  PageHelper::JsonResultError('参数错误');
 } else {
   $json_data = json_decode($content);
   if (empty($json_data)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
 
   if (isset($json_data->Id))
     $id = intval($json_data->Id);
 }
 
-$columns = array('Id' => 0, 'Name' => '', 'Tel' => '', 'IdcardNo' => '', 'Remark' => '');
-
-include_once './lib/pdo.php';
-include_once './lib/stringHelper.php';
+$columns = array('Id' => 0, 'Name' => '', 'Tel' => '', 'IdcardNo' => '', 'Address' => '', 'Remark' => '');
 
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   if (empty($id)) {
     $model = $columns;
   } else {
     $sql = 'select ' . implode(',', array_keys($columns)) . ' from Member where Id = :Id';
     $sqlParams = array('Id' => $id);
-    if ($authorize['Type'] != $enumAccountType['配置员']) {
-      $sql = $sql . ' and SiteId = ' . $authorize['SiteId'];
+    if ($authorization->Type != EnumAccountType::配置员) {
+      $sql = $sql . ' and SiteId = ' . $authorization->SiteId;
     }
     $sql = $sql . ';';
     $sth = $pdomysql->prepare($sql);
     $sth->execute($sqlParams);
     $model = $sth->fetch(PDO::FETCH_ASSOC);
     if ($model === false) {
-      JsonResultError('参数错误');
+      PageHelper::JsonResultError('参数错误');
     }
   }
-  JsonResultSuccess($model);
+  PageHelper::JsonResultSuccess($model);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

@@ -29,6 +29,12 @@ export const searchColumnsSchema: FormSchema[] = [
     colProps: { span: 4 },
   },
   {
+    label: '地址',
+    field: 'Address',
+    component: 'Input',
+    colProps: { span: 4 },
+  },
+  {
     label: '创建时间',
     field: 'CreateTime',
     component: 'RangePicker',
@@ -69,8 +75,15 @@ export const queryColumnsSchema: BasicColumn[] = [
     sorter: true,
   },
   {
+    title: '地址',
+    dataIndex: 'Address',
+    align: 'left',
+    width: 200,
+    sorter: true,
+  },
+  {
     title: '身份证',
-    dataIndex: 'IdcardNo',
+    dataIndex: 'Address',
     align: 'left',
     width: 160,
     sorter: true,
@@ -159,6 +172,12 @@ export const editorFormSchema: FormSchema[] = [
   {
     label: '身份证',
     field: 'IdcardNo',
+    defaultValue: '',
+    component: 'Input',
+  },
+  {
+    label: '地址',
+    field: 'Address',
     defaultValue: '',
     component: 'Input',
   },

@@ -7,7 +7,6 @@ use Aglory\Authorization;
 use Aglory\DBInstance;
 use Aglory\EnumAccountType;
 use Aglory\EnumPermission;
-use Aglory\EnumProductType;
 use Aglory\PageHelper;
 use Aglory\StringHelper;
 

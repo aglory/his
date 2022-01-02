@@ -2,13 +2,16 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['订单管理']);
-$enumAccountType = GetEnumAccountType();
-CheckWidthOutAuthorizeType($enumAccountType['配置员']);
-$authorize = GetAuthorize();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::订单管理);
+$authorization->CheckType(EnumAccountType::管理员, EnumAccountType::操作员);
 
 // 自定义查询条件
 $columnGeneral = ['Id', 'Name', 'Tel', 'CreateTime'];
@@ -47,7 +50,7 @@ foreach ($_POST as $key => $value) {
   }
 }
 $sqlWhere[] = 'IsLocked = false';
-$sqlWhere[] = 'SiteId = ' . $authorize['SiteId'];
+$sqlWhere[] = 'SiteId = ' . $authorization->SiteId;
 
 $columns = array_merge($columnGeneral, $columnEqual, $columnLike, $columnIn);
 $sql = 'select ' . implode(',', $columns) . ' from `Member`';
@@ -57,16 +60,15 @@ if (count($sqlWhere)) {
 
 // 分页统一参数
 $sql = $sql . ' order by length(Name) asc limit 0, 20;';
-include_once './lib/pdo.php';
 
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   $sth = $pdomysql->prepare($sql);
   $sth->execute($sqlParams);
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
 
-  JsonResultSuccess($items);
+  PageHelper::JsonResultSuccess($items);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

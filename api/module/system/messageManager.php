@@ -2,12 +2,14 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['公告管理']);
-$authorize = GetAuthorize();
-$enumAccountType = GetEnumAccountType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::公告管理);
 
 // 分页统一参数
 $pageIndex = 1;
@@ -62,6 +64,8 @@ foreach ($_POST as $key => $value) {
   }
 }
 
+$sqlWhere[] = 'SiteId = ' . $authorization->SiteId;
+
 $columns = array_merge($columnGeneral, $columnEqual, $columnLike, $columnIn);
 $sql = 'select SQL_CALC_FOUND_ROWS ' . implode(',', $columns) . ' from Message';
 if (count($sqlWhere)) {
@@ -71,18 +75,16 @@ if (in_array($pageColumn, $columns)) {
   $sql = $sql . ' order by ' . $pageColumn . ($pageOrderBy == 'descend' ? ' desc' : ' asc');
 }
 $sql = $sql . " limit $pageStart, $pageSize;";
-include_once './lib/pdo.php';
-
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   $sth = $pdomysql->prepare($sql);
   $sth->execute($sqlParams);
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
   $sth = $pdomysql->prepare('select FOUND_ROWS() as total;');
   $sth->execute();
   $statistics = $sth->fetch(PDO::FETCH_ASSOC);
-  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
+  PageHelper::JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items));
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

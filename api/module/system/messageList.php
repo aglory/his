@@ -2,21 +2,23 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-CheckAuthorized();
-$authorize = GetAuthorize();
 
-include_once './lib/pdo.php';
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode();
 
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   $sql = 'select  Id, Title, Content from Message where IsLocked = false and SiteId = :SiteId order by Id desc;';
   $sth = $pdomysql->prepare($sql);
-  $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
+  $sth->bindValue(':SiteId', $authorization->SiteId, PDO::PARAM_INT);
   $sth->execute();
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
-  JsonResultSuccess($items);
+  PageHelper::JsonResultSuccess($items);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

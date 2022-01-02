@@ -3,4 +3,6 @@ if (!defined('Execute')) {
   exit();
 }
 
-JsonResultSuccess();
+use Aglory\PageHelper;
+
+PageHelper::JsonResultSuccess();

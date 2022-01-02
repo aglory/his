@@ -2,12 +2,15 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['会员管理']);
-$authorize = GetAuthorize();
-$enumAccountType = GetEnumAccountType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::会员管理);
 
 // 分页统一参数
 $pageIndex = 1;
@@ -32,7 +35,7 @@ $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 // 自定义查询条件
 $columnGeneral = ['Id', 'Balance', 'Integral', 'CreateTime'];
 $columnEqual  = ['SiteId'];
-$columnLike  = ['Name', 'Tel', 'IdcardNo'];
+$columnLike  = ['Name', 'Tel', 'IdcardNo', 'Address'];
 $columnIn = ['IsLocked'];
 
 $sqlWhere = [];
@@ -61,8 +64,8 @@ foreach ($_POST as $key => $value) {
     }
   }
 }
-if ($authorize['Type'] != $enumAccountType['配置员']) {
-  $sqlWhere[] = 'SiteId = ' . $authorize['SiteId'];
+if ($authorization->Type != EnumAccountType::配置员) {
+  $sqlWhere[] = 'SiteId = ' . $authorization->SiteId;
 }
 
 $columns = array_merge($columnGeneral, $columnEqual, $columnLike, $columnIn);
@@ -74,11 +77,10 @@ if (in_array($pageColumn, $columns)) {
   $sql = $sql . ' order by ' . $pageColumn . ($pageOrderBy == 'descend' ? ' desc' : ' asc');
 }
 $sql = $sql . " limit $pageStart, $pageSize;";
-include_once './lib/pdo.php';
 
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   $sth = $pdomysql->prepare($sql);
   $sth->execute($sqlParams);
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -91,7 +93,7 @@ try {
   $sth->execute($sqlParams);
   $statistics = $sth->fetch(PDO::FETCH_ASSOC);
 
-  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items, 'Balance' => $statistics['Balance']));
+  PageHelper::JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items, 'Balance' => $statistics['Balance']));
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

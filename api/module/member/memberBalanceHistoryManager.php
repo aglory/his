@@ -2,12 +2,15 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['流水管理']);
-$authorize = GetAuthorize();
-$enumAccountType = GetEnumAccountType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::流水管理);
 
 // 分页统一参数
 $pageIndex = 1;
@@ -61,11 +64,11 @@ foreach ($_POST as $key => $value) {
     }
   }
 }
-if ($authorize['Type'] != $enumAccountType['配置员']) {
-  $sqlWhere[] = 'SiteId = ' . $authorize['SiteId'];
+if ($authorization->Type != EnumAccountType::配置员) {
+  $sqlWhere[] = 'SiteId = ' . $authorization->SiteId;
 }
-if ($authorize['Type'] == $enumAccountType['员工']) {
-  $sqlWhere[] = 'OperatorId = ' . $authorize['Id'];
+if ($authorization->Type == EnumAccountType::操作员) {
+  $sqlWhere[] = 'OperatorId = ' . $authorization->Id;
 }
 
 $columns = array_merge($columnGeneral, $columnEqual, $columnLike, $columnIn);
@@ -77,11 +80,10 @@ if (in_array($pageColumn, $columns)) {
   $sql = $sql . ' order by ' . $pageColumn . ($pageOrderBy == 'descend' ? ' desc' : ' asc');
 }
 $sql = $sql . " limit $pageStart, $pageSize;";
-include_once './lib/pdo.php';
 
 try {
   if (empty($pdomysql))
-    $pdomysql = GetPDO();
+    $pdomysql = DBInstance::GetMain();
   $sth = $pdomysql->prepare($sql);
   $sth->execute($sqlParams);
   $items = $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -94,7 +96,7 @@ try {
   $sth->execute($sqlParams);
   $statistics = $sth->fetch(PDO::FETCH_ASSOC);
 
-  JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items, 'Amount' => $statistics['Amount']), $sql);
+  PageHelper::JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items, 'Amount' => $statistics['Amount']), $sql);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

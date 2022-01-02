@@ -105,14 +105,15 @@ class Authorization
       if (empty($codes)) {                                        // 没有权限码
         return;
       } else {
+        $success = true;
         foreach ($codes as $code) {
           if (!in_array($code, $this->Permission)) {
-            header('HTTP/1.1 401 Unauthorized');
-            header('status: 401 Unauthorized');
-            exit();
+            $success = false;
+            break;
           }
         }
-        return;                                                   // 用户有权限码
+        if ($success)
+          return;                                                 // 用户有权限码
       }
     }
 
@@ -124,10 +125,14 @@ class Authorization
   /**
    * 检查用户类型是否为确定类型
    */
-  function CheckType($type)
+  function CheckType(...$types)
   {
-    if ($this->Authorized && $this->Type === $type) {
-      return;
+    if ($this->Authorized) {
+      if (empty($types)) {
+        return;
+      } else if (in_array($this->Type, $types)) {
+        return;
+      }
     }
 
     header('HTTP/1.1 401 Unauthorized');

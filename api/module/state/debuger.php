@@ -3,10 +3,15 @@ if (!defined('Execute')) {
   exit();
 }
 
+use Aglory\Authorization;
+use Aglory\DBInstance;
+
+$authorization = new Authorization();
+$authorization->CheckCode();
 include_once './lib/pdo.php';
 
 if (empty($pdomysql))
-  $pdomysql = GetPDO();
+  $pdomysql = DBInstance::GetMain();
 
 $sth = $pdomysql->prepare("select id, name from debugger;");
 $sth -> execute();
