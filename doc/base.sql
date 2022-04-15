@@ -22,7 +22,7 @@ create table Account(
 	Password varchar(50) not null														comment '登录密码',
 	Salt char(6) not null																comment '盐渍',
 	Type int not null																	comment '用户类型',
-    Role varchar(2000)																	comment '用户角色(,)分割',
+    Role varchar(2000) not null															comment '用户角色(,)分割',
 	IsLocked bit not null																comment '是否被锁定',
 	CreateTime DATETIME not null 														comment '创建时间',
 	unique key UniqueKey(SiteId, LoginName)
@@ -66,7 +66,7 @@ create table Role(
 	Id bigint not null primary key auto_increment,
 	SiteId bigint not null																comment '站点Id',
 	Name varchar(50) not null 															comment '角色',
-    Permission varchar(2000)															comment '角色对应权限(,)分割',
+    Permission varchar(2000) not null													comment '角色对应权限(,)分割',
     IsInner bit not null																comment '是否为内置角色'
 )engine InnoDB default character set = utf8 collate = utf8_bin auto_increment=1			comment '角色表' ;
 
@@ -79,6 +79,8 @@ create table Message(
 	IsLocked bit not null																comment '是否被锁定',
 	CreateTime DATETIME not null 														comment '创建时间'
 )engine InnoDB default character set = utf8 collate = utf8_bin auto_increment=1			comment '消息表' ;
+
+
 
 drop table if exists Member;
 create table Member(
@@ -95,11 +97,14 @@ create table Member(
 	CreateTime DATETIME not null 														comment '创建时间'
 )engine InnoDB default character set = utf8 collate = utf8_bin							comment '会员表' ;
 
+
+
+
 drop table if exists Product;
 create table Product(
 	Id bigint not null primary key auto_increment,
 	SiteId bigint not null																comment '站点Id',
-	Type int not null 																	comment '产品类型',
+	Type int not null 																	comment '产品类型(1:一般商品,2:卡券类型)',
 	Code varchar(20) not null															comment '代号',
 	ShortName varchar(50) not null 														comment '产品名称(简称)',
 	FullName text not null																comment '产品名称(全称)',
@@ -109,14 +114,61 @@ create table Product(
 	Integral int not null																comment '积分',
 	SaleCopies int not null																comment '销售数量',
 	BaseCopies int not null																comment '基础销量',
-	NoSort bit not null																	comment '是否有库存',
-	SortCopies int not null																comment '库存数量',
+	Unit varchar(20)																	comment '计量单位',
 	OrderIndex int not null																comment '排列序号',
 	IsLocked bit not null																comment '是否被锁定',
     Description text not null															comment '描述',
+	
+	-- 库存
+	NoSort bit not null																	comment '是否有库存',
+	SortCopies int not null																comment '库存数量',
+	
     Remark text	not null																comment '备注',
 	CreateTime DATETIME not null 														comment '创建时间'
 )engine InnoDB default character set = utf8 collate = utf8_bin							comment '产品表';
+
+drop table if exists Product2;
+create table Product2(
+	ProductId bigint not null primary key												comment '产品Id',
+    ProductIds varchar(2000)	not null												comment '支持产品Id(,)分割',
+	-- 次卡
+	ValidCopies int not null															comment '有效使用次数',
+	
+	-- 天卡、月卡、年卡
+	ValidTime int not null																comment '有效使用时长',
+	ValidTimeUnitType int not null														comment '有效使用时单位(1:天,2:月,3:年)',
+	ValidTimeActiveImmediate int not null												comment '是否立刻激活',
+	
+	PriceDiscount decimal(4,4) not null													comment '优惠折扣',	
+	PriceReduce decimal(18,2) not null													comment '优惠抵扣'
+)engine InnoDB default character set = utf8 collate = utf8_bin							comment '产品表(卡券类型)';
+
+drop table if exists Ticket;
+create table Ticket(
+	Id bigint not null primary key auto_increment,
+	SiteId bigint not null																comment '站点Id',
+	MemberId bigint not null															comment '会员Id',
+	ProductId bigint not null															comment '产品Id',
+	OrderItemId bigint not null															comment '订单项Id',
+	IsActive bit not null																comment '是否激活',
+	IsLocked bit not null																comment '是否被锁定',
+    ProductIds varchar(2000)	not null												comment '支持产品Id(,)分割',
+	-- 次卡
+	ValidCopies int not null															comment '有效使用次数',
+	
+	-- 天卡、月卡、年卡
+	ValidTime int not null																comment '有效使用时长',
+	ValidTimeUnitType int not null														comment '有效使用时单位(1:天,2:月,3:年)',
+	ValidTimeActivateType int not null													comment '激活时间(1:购买激活,2:使用激活)',
+	ValidTimeStart datetime not null													comment '有效使用开始时间',
+	ValidTimeEnd datetime not null														comment '有效使用结束时间',
+	
+	PriceDiscount decimal(4,4) not null													comment '优惠折扣',	
+	PriceReduce decimal(18,2) not null													comment '优惠抵扣'
+)engine InnoDB default character set = utf8 collate = utf8_bin							comment '优惠券';
+	
+
+
 
 drop table if exists `Order`;
 create table `Order`(
@@ -150,6 +202,7 @@ create table OrderItem(
 	ProductPrice decimal(18, 2) not null												comment '产品销售价格',
 	ProductSettlementPrice decimal(18, 2) not null										comment '产品结算价',
 	Copies int not null 																comment '购买数量',	
+	TicketId bigint not null															comment '使用的抵扣券Id',
 	CreateTime DATETIME not null 														comment '创建时间'
 )engine InnoDB default character set = utf8 collate = utf8_bin							comment '订单项表' ;
 

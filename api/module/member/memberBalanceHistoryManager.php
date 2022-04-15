@@ -96,7 +96,7 @@ try {
   $sth->execute($sqlParams);
   $statistics = $sth->fetch(PDO::FETCH_ASSOC);
 
-  PageHelper::JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items, 'Amount' => $statistics['Amount']), $sql);
+  PageHelper::JsonResultSuccess(array('PageTotal' => $statistics['total'], 'Items' => $items, 'Amount' => $statistics['Amount']));
 } catch (PDOException $e) {
   PageHelper::JsonResultException($e);
 }

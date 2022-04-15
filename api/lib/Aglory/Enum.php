@@ -49,6 +49,34 @@ class EnumAccountType
 class EnumProductType
 {
   const 一般产品 = 1;
+  const 次卡产品 = 2;
+  const 时段产品 = 3;
+  static function ToArray()
+  {
+    return array(
+      '一般产品' => self::一般产品,
+      '次卡产品' => self::次卡产品,
+      '时段产品' => self::时段产品,
+    );
+  }
+}
+
+/**
+ * 产品有效使用时单位
+ */
+class EnumValidTimeUnitType
+{
+  const 天 = 1;
+  const 月 = 2;
+  const 年 = 3;
+  static function ToArray()
+  {
+    return array(
+      '天' => self::天,
+      '月' => self::月,
+      '年' => self::年,
+    );
+  }
 }
 
 /**

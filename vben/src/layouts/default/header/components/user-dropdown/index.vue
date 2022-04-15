@@ -24,6 +24,7 @@
           :text="t('layout.header.tooltipLock')"
           icon="ion:lock-closed-outline"
         />
+        <MenuItem key="changePassword" text="修改密码" icon="grommet-icons:user-admin" />
         <MenuItem
           key="logout"
           :text="t('layout.header.dropdownItemLoginOut')"
@@ -33,6 +34,7 @@
     </template>
   </Dropdown>
   <LockAction @register="register" />
+  <ChangePasswordAction @register="registerChangePassword" />
 </template>
 <script lang="ts">
   // components
@@ -54,7 +56,7 @@
 
   import { createAsyncComponent } from '/@/utils/factory/createAsyncComponent';
 
-  type MenuEvent = 'logout' | 'doc' | 'lock';
+  type MenuEvent = 'changePassword' | 'logout' | 'doc' | 'lock';
 
   export default defineComponent({
     name: 'UserDropdown',
@@ -64,6 +66,9 @@
       MenuItem: createAsyncComponent(() => import('./DropMenuItem.vue')),
       MenuDivider: Menu.Divider,
       LockAction: createAsyncComponent(() => import('../lock/LockModal.vue')),
+      ChangePasswordAction: createAsyncComponent(
+        () => import('../changePassword/ChangePasswordModal.vue'),
+      ),
     },
     props: {
       theme: propTypes.oneOf(['dark', 'light']),
@@ -81,8 +86,14 @@
 
       const [register, { openModal }] = useModal();
 
+      const [registerChangePassword, { openModal: openModalChangePassword }] = useModal();
+
       function handleLock() {
         openModal(true);
+      }
+
+      function handelChangePassword() {
+        openModalChangePassword(true, {});
       }
 
       //  login out
@@ -97,6 +108,9 @@
 
       function handleMenuClick(e: { key: MenuEvent }) {
         switch (e.key) {
+          case 'changePassword':
+            handelChangePassword();
+            break;
           case 'logout':
             handleLoginOut();
             break;
@@ -116,6 +130,7 @@
         handleMenuClick,
         getShowDoc,
         register,
+        registerChangePassword,
         getUseLockPage,
       };
     },

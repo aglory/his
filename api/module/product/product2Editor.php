@@ -27,15 +27,14 @@ if (empty($content)) {
     $id = intval($json_data->Id);
 }
 
-$columns = array('Id' => 0, 'Type' => 0, 'Code' => '', 'ShortName' => '', 'FullName' => '', 'Description' => '', 'Remark' => '');
-
+$columns = array('Id' => 0, 'Type' => 0, 'ProductIds' => '',  'ValidCopies' => 0,  'ValidTime' => 0,  'ValidTimeUnit' => 0,  'ValidTimeActiveImmediate' => false,  'PriceDiscount' => 0,  'PriceReduce' => 0);
 try {
   if (empty($pdomysql))
     $pdomysql = DBInstance::GetMain();
   if (empty($id)) {
     $model = $columns;
   } else {
-    $sql = 'select ' . implode(',', array_keys($columns)) . ' from Product where Id = :Id';
+    $sql = 'select ' . implode(',', array_keys($columns)) . ' from ViewProduct2 where Id = :Id';
     $sqlParams = array('Id' => $id);
     if ($authorization->Type != EnumAccountType::配置员) {
       $sql = $sql . ' and SiteId = ' . $authorization->SiteId;

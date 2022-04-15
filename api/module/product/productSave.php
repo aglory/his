@@ -2,14 +2,17 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['产品管理']);
-$enumAccountType = GetEnumAccountType();
-CheckWidthOutAuthorizeType($enumAccountType['配置员']);
-$authorize = GetAuthorize();
-$enumProductType = GetEnumProductType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\EnumProductType;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::产品管理);
+$authorization->CheckType(EnumAccountType::管理员, EnumAccountType::操作员);
 
 $id = 0;
 $type = 0;
@@ -21,11 +24,11 @@ $remark = '';
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
-  JsonResultError('参数错误');
+  PageHelper::JsonResultError('参数错误');
 } else {
   $json_data = json_decode($content);
   if (empty($json_data)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
 
   if (isset($json_data->Id))
@@ -50,21 +53,20 @@ if (empty($content)) {
     $remark = $json_data->Remark;
 }
 
-include_once './lib/pdo.php';
 if (empty($pdomysql))
-  $pdomysql = GetPDO();
+  $pdomysql = DBInstance::GetMain();
 
 // 验证
 if (empty($shortName) || strlen($shortName) < 2 || strlen($shortName) > 50) {
-  JsonResultError('产品简称必须为1至50个字符');
+  PageHelper::JsonResultError('产品简称必须为1至50个字符');
 }
 if (empty($fullName) || strlen($fullName) < 2 || strlen($fullName) > 2000) {
-  JsonResultError('产品全称必须为1至2000个字符');
+  PageHelper::JsonResultError('产品全称必须为1至2000个字符');
 }
 if (empty($id)) {
   // 添加
-  if (!in_array($type, $enumProductType)) {
-    JsonResultError('请选择正确的产品类型');
+  if (!in_array($type, EnumProductType::ToArray())) {
+    PageHelper::JsonResultError('请选择正确的产品类型');
   }
 } else {
   // 修改
@@ -72,7 +74,7 @@ if (empty($id)) {
 
 try {
   if (empty($id)) {
-    $sth = $pdomysql->prepare("insert Product(SiteId, Type, Code, ShortName, FullName, Description, Remark, MarketPrice, Price, SettlementPrice, Integral, SaleCopies, BaseCopies, SortCopies, OrderIndex, IsLocked, CreateTime)values(:SiteId, :Type, :Code, :ShortName, :FullName, :Description, :Remark, 0, 0, 0, 0, 0, 0, 0, 0, true, now());");
+    $sth = $pdomysql->prepare("insert Product(SiteId, Type, Code, ShortName, FullName, MarketPrice, Price, SettlementPrice, Integral, SaleCopies, BaseCopies, Unit, OrderIndex, IsLocked, Description, NoSort, SortCopies, Remark, CreateTime)values(:SiteId, :Type, :Code, :ShortName, :FullName, 0, 0, 0, 0, 0, 0, '', 0, true, '', true, 0, '', now());");
     $sth->bindValue(':Type', $type, PDO::PARAM_INT);
   } else {
     $sth = $pdomysql->prepare('update Product set Code = :Code, ShortName = :ShortName, FullName = :FullName, Description = :Description, Remark = :Remark where Id = :Id and SiteId = :SiteId;');
@@ -88,7 +90,7 @@ try {
   if (empty($id)) {
     $id = $pdomysql->lastInsertId();
   }
-  JsonResultSuccess($id);
+  PageHelper::JsonResultSuccess($id);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

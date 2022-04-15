@@ -2,35 +2,41 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['产品管理']);
-$enumAccountType = GetEnumAccountType();
-CheckWidthOutAuthorizeType($enumAccountType['配置员']);
-$authorize = GetAuthorize();
-$enumProductType = GetEnumProductType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::产品管理);
+$authorization->CheckType(EnumAccountType::管理员, EnumAccountType::操作员);
 
 $id = 0;
+$unit = '';
 $baseCopies = 0;
 $sortCopies = 0;
 $noSort = 0;
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
-  JsonResultError('参数错误');
+  PageHelper::JsonResultError('参数错误');
 } else {
   $json_data = json_decode($content);
   if (empty($json_data)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
 
   if (isset($json_data->Id))
     $id = $json_data->Id;
 
   if (empty($id)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
+  
+  if (isset($json_data->Unit))
+    $unit  = intval($json_data->Unit);
 
   if (isset($json_data->BaseCopies))
     $baseCopies = intval($json_data->BaseCopies);
@@ -42,20 +48,20 @@ if (empty($content)) {
     $noSort = intval($json_data->NoSort);
 }
 
-include_once './lib/pdo.php';
 if (empty($pdomysql))
-  $pdomysql = GetPDO();
+  $pdomysql = DBInstance::GetMain();
 
 try {
-  $sql = 'update Product set BaseCopies = :BaseCopies, SortCopies = :SortCopies, NoSort = :NoSort where Id = :Id and SiteId = :SiteId;';
+  $sql = 'update Product set Unit = :Unit, BaseCopies = :BaseCopies, SortCopies = :SortCopies, NoSort = :NoSort where Id = :Id and SiteId = :SiteId;';
   $sth = $pdomysql->prepare($sql);
   $sth->bindParam(':Id', $id, PDO::PARAM_INT);
   $sth->bindValue(':SiteId', $authorize['SiteId'], PDO::PARAM_INT);
+  $sth->bindValue(':Unit', $unit, PDO::PARAM_STR);
   $sth->bindParam(':BaseCopies', $baseCopies, PDO::PARAM_INT);
   $sth->bindParam(':SortCopies', $sortCopies, PDO::PARAM_INT);
   $sth->bindParam(':NoSort', $noSort, PDO::PARAM_BOOL);
   $sth->execute();
-  JsonResultSuccess($id);
+  PageHelper::JsonResultSuccess($id);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }

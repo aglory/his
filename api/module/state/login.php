@@ -94,7 +94,7 @@ if ($account !== false && $account['Password'] == md5($password . $account['Salt
         foreach ($roleList as $item) {
           if (!empty($item['Permission'])) {
             foreach (explode(',', $item['Permission']) as $permission) {
-              $data['Permission'] = intval($permission);
+              $data['Permission'][] = intval($permission);
             }
           }
         }

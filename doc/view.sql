@@ -13,6 +13,20 @@ create view ViewAccountParent as
 	select a.*, ap.* from Account a inner join AccountParent ap on a.Id = ap.AccountId;
 
 /**
+	产品视图
+*/
+drop view if exists ViewProduct;
+create view ViewProduct as 
+	select p.*, p2.* from Product p left join Product2 p2 on p.Id = p2.ProductId;
+
+/**
+	产品2视图
+*/
+drop view if exists ViewProduct2;
+create view ViewProduct2 as 
+	select p.Id, p.Type, p.SiteId, p2.* from Product p inner join Product2 p2 on p.Id = p2.ProductId;
+
+/**
 	会员余额流水视图
 */
 drop view if exists ViewMemberBalanceHistory;

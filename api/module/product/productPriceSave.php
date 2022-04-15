@@ -2,14 +2,16 @@
 if (!defined('Execute')) {
   exit();
 }
-include_once './lib/account.php';
-include_once './lib/enum.php';
-$enumPermission = GetEnumPermission();
-CheckAuthorized($enumPermission['产品管理']);
-$enumAccountType = GetEnumAccountType();
-CheckWidthOutAuthorizeType($enumAccountType['配置员']);
-$authorize = GetAuthorize();
-$enumProductType = GetEnumProductType();
+
+use Aglory\Authorization;
+use Aglory\DBInstance;
+use Aglory\EnumAccountType;
+use Aglory\EnumPermission;
+use Aglory\PageHelper;
+
+$authorization = new Authorization();
+$authorization->CheckCode(EnumPermission::产品管理);
+$authorization->CheckType(EnumAccountType::管理员, EnumAccountType::操作员);
 
 $id = 0;
 $marketPrice = 0;
@@ -19,18 +21,18 @@ $integral = 0;
 
 $content = file_get_contents('php://input');
 if (empty($content)) {
-  JsonResultError('参数错误');
+  PageHelper::JsonResultError('参数错误');
 } else {
   $json_data = json_decode($content);
   if (empty($json_data)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
 
   if (isset($json_data->Id))
     $id = $json_data->Id;
 
   if (empty($id)) {
-    JsonResultError('参数错误');
+    PageHelper::JsonResultError('参数错误');
   }
 
   if (isset($json_data->MarketPrice))
@@ -46,9 +48,8 @@ if (empty($content)) {
     $integral = floatval($json_data->Integral);
 }
 
-include_once './lib/pdo.php';
 if (empty($pdomysql))
-  $pdomysql = GetPDO();
+  $pdomysql = DBInstance::GetMain();
 
 try {
   $sql = 'update Product set MarketPrice = :MarketPrice, Price = :Price, SettlementPrice = :SettlementPrice, Integral = :Integral where Id = :Id and SiteId = :SiteId;';
@@ -60,7 +61,7 @@ try {
   $sth->bindParam(':SettlementPrice', $settlementPrice, PDO::PARAM_INT);
   $sth->bindParam(':Integral', $integral, PDO::PARAM_INT);
   $sth->execute();
-  JsonResultSuccess($id);
+  PageHelper::JsonResultSuccess($id);
 } catch (PDOException $e) {
-  JsonResultException($e);
+  PageHelper::JsonResultException($e);
 }
