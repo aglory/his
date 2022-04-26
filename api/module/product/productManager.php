@@ -12,9 +12,6 @@ use Aglory\PageHelper;
 $authorization = new Authorization();
 $authorization->CheckCode(EnumPermission::产品管理);
 
-include_once './lib/account.php';
-include_once './lib/enum.php';
-
 // 分页统一参数
 $pageIndex = 1;
 $pageSize = 50;
@@ -36,7 +33,7 @@ if (array_key_exists('PageOrderBy', $_POST)) {
 $pageStart = $pageIndex > 0 ? ($pageIndex - 1) * $pageSize : 0;
 
 // 自定义查询条件
-$columnGeneral = ['Id', 'MarketPrice', 'Price', 'SettlementPrice', 'Integral', 'SaleCopies', 'BaseCopies', 'SortCopies', 'OrderIndex', 'CreateTime'];
+$columnGeneral = ['Id', 'MarketPrice', 'Price', 'SettlementPrice', 'Integral', 'SaleCopies', 'BaseCopies', 'SortCopies', 'OrderIndex', 'CreateTime', 'UpdateTime'];
 $columnEqual  = ['SiteId', 'Code'];
 $columnLike  = ['ShortName', 'FullName'];
 $columnIn = ['Type', 'NoSort', 'IsLocked'];
