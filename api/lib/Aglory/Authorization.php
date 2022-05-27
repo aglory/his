@@ -125,7 +125,7 @@ class Authorization
   /**
    * 检查用户类型是否为确定类型
    */
-  function CheckType(...$types)
+  public function CheckType(...$types)
   {
     if ($this->Authorized) {
       if (empty($types)) {

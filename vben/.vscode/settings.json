@@ -187,5 +187,8 @@
 },
 "[php]": {
     "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+},
+"[sql]": {
+    "editor.defaultFormatter": "lea21st.vscode-sql-formatter"
 }
 }

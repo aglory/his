@@ -48,15 +48,35 @@ class EnumAccountType
  */
 class EnumProductType
 {
-  const 一般产品 = 1;
-  const 次卡产品 = 2;
-  const 时段产品 = 3;
+  const 卡券类型 = 1;
+  const 药品类型 = 2;
+  const 理疗项目 = 3;
   static function ToArray()
   {
     return array(
-      '一般产品' => self::一般产品,
-      '次卡产品' => self::次卡产品,
-      '时段产品' => self::时段产品,
+      '卡券类型' => self::卡券类型,
+      '药品类型' => self::药品类型,
+      '理疗项目' => self::理疗项目,
+    );
+  }
+}
+
+/**
+ * 产品2(药品类型)枚举
+ */
+class EnumProductType2
+{
+  const 中药 = 1;
+  const 西药 = 2;
+  const 自成品 = 3;
+  const 保健品 = 4;
+  static function ToArray()
+  {
+    return array(
+      '中药' => self::中药,
+      '西药' => self::西药,
+      '自成品' => self::自成品,
+      '保健品' => self::保健品,
     );
   }
 }
